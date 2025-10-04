@@ -43,6 +43,20 @@ export const profileSchema = z.discriminatedUnion("role", [
   coordinatorSchema,
 ]);
 
+const allFieldsDefaultValues = {
+  role: "wolontariusz" as const,
+
+  firstName: "",
+  lastName: "",
+  isOfAge: false,
+
+  companyName: "",
+  location: "",
+  description: "",
+
+  school: "",
+};
+
 type ProfileFormData = z.infer<typeof profileSchema>;
 type Role = ProfileFormData["role"];
 
@@ -59,12 +73,7 @@ export default function CompleteProfilePage() {
 
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
-    defaultValues: {
-      role: "wolontariusz",
-      firstName: "",
-      lastName: "",
-      isOfAge: false,
-    },
+    defaultValues: allFieldsDefaultValues,
   });
 
   const selectedRole = form.watch("role");
@@ -72,7 +81,7 @@ export default function CompleteProfilePage() {
   const handleTabChange = (value: string) => {
     form.setValue("role", value as Role, { shouldValidate: true });
     form.clearErrors();
-    console.log(value);
+    form.reset({ ...allFieldsDefaultValues, role: value as Role });
   };
 
   function onSubmit(data: ProfileFormData) {
