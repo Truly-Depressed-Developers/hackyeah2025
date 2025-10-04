@@ -62,6 +62,13 @@ export default async function Home() {
           </div>
 
           {session?.user && <LatestPost />}
+
+          <div>
+            {session?.user.role} <br />
+            {session?.user.profileCompleted
+              ? "Profile completed"
+              : "Profile not completed"}
+          </div>
         </div>
       </main>
     </HydrateClient>
