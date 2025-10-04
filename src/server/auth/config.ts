@@ -10,6 +10,7 @@ import {
   users,
   verificationTokens,
 } from "@/server/db/schema";
+import type { UserRole } from "../db/types";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -21,15 +22,16 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      // ...other properties
-      // role: UserRole;
+      role: UserRole;
+      profileCompleted: boolean;
     } & DefaultSession["user"];
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface User {
+    id?: string;
+    role: UserRole;
+    profileCompleted: boolean;
+  }
 }
 
 /**
@@ -63,7 +65,12 @@ export const authConfig = {
       user: {
         ...session.user,
         id: user.id,
+        role: user.role,
+        profileCompleted: user.profileCompleted,
       },
     }),
+  },
+  pages: {
+    signIn: "/login",
   },
 } satisfies NextAuthConfig;

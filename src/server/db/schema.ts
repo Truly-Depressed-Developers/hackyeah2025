@@ -1,6 +1,7 @@
 import { relations, sql } from "drizzle-orm";
 import { index, pgTableCreator, primaryKey } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
+import type { UserRole } from "./types";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -46,10 +47,62 @@ export const users = createTable("user", (d) => ({
     })
     .default(sql`CURRENT_TIMESTAMP`),
   image: d.varchar({ length: 255 }),
+  role: d
+    .varchar({ length: 50 })
+    .$type<UserRole>()
+    .notNull()
+    .default("wolontariusz"),
+  profileCompleted: d.boolean().notNull().default(false),
 }));
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ many, one }) => ({
   accounts: many(accounts),
+  sessions: many(sessions),
+  volunteer: one(volunteers, {
+    fields: [users.id],
+    references: [volunteers.userId],
+  }),
+  company: one(companies, {
+    fields: [users.id],
+    references: [companies.userId],
+  }),
+  coordinator: one(coordinators, {
+    fields: [users.id],
+    references: [coordinators.userId],
+  }),
+}));
+
+export const volunteers = createTable("volunteer", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  userId: d
+    .varchar({ length: 255 })
+    .notNull()
+    .references(() => users.id),
+  firstName: d.varchar({ length: 255 }),
+  lastName: d.varchar({ length: 255 }),
+  isOfAge: d.boolean("is_of_age"),
+}));
+
+export const companies = createTable("company", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  userId: d
+    .varchar({ length: 255 })
+    .notNull()
+    .references(() => users.id),
+  companyName: d.varchar({ length: 255 }),
+  location: d.varchar({ length: 255 }),
+  description: d.text(),
+}));
+
+export const coordinators = createTable("coordinator", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  userId: d
+    .varchar({ length: 255 })
+    .notNull()
+    .references(() => users.id),
+  firstName: d.varchar({ length: 255 }),
+  lastName: d.varchar({ length: 255 }),
+  school: d.varchar({ length: 255 }),
 }));
 
 export const accounts = createTable(
