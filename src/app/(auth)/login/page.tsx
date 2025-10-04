@@ -1,5 +1,5 @@
-import AuthFormHeader from "@/app/_components/layout/AuthFormHeader";
-import HalfImageScreen from "@/app/_components/layout/HalfImageScreen";
+import AuthFormHeader from "@/components/layout/AuthFormHeader";
+import HalfImageScreen from "@/components/layout/HalfImageScreen";
 import { Button } from "@/components/ui/button";
 import { signIn } from "@/server/auth";
 import Image from "next/image";

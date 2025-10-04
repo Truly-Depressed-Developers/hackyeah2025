@@ -1,5 +1,3 @@
-// src/server/api/routers/profile.ts
-
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 
@@ -7,8 +5,6 @@ import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { users, volunteers, companies, coordinators } from "@/server/db/schema";
 import type { UserRole } from "@/server/db/types";
 
-// Schemat walidacji Zod, który będzie używany zarówno na serwerze, jak i na kliencie
-// To jest jedna z największych zalet tRPC!
 const profileInputSchema = z.discriminatedUnion("role", [
   z.object({
     role: z.literal("wolontariusz"),
@@ -71,16 +67,12 @@ export const profileRouter = createTRPCRouter({
     };
   }),
 
-  // Definiujemy mutację, czyli operację, która zmienia dane
-  complete: protectedProcedure // Używamy `protectedProcedure`, aby upewnić się, że tylko zalogowani użytkownicy mogą ją wywołać
-    .input(profileInputSchema) // Automatyczna walidacja danych wejściowych
+  complete: protectedProcedure
+    .input(profileInputSchema)
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // Używamy transakcji, aby zapewnić spójność danych.
-      // Albo wszystkie operacje się powiodą, albo żadna.
       await ctx.db.transaction(async (tx) => {
-        // 1. Aktualizujemy tabelę `users`
         await tx
           .update(users)
           .set({
@@ -89,7 +81,6 @@ export const profileRouter = createTRPCRouter({
           })
           .where(eq(users.id, userId));
 
-        // 2. Wstawiamy dane do odpowiedniej tabeli w zależności od roli
         switch (input.role) {
           case "wolontariusz":
             await tx.insert(volunteers).values({

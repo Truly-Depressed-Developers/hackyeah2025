@@ -1,4 +1,3 @@
-// src/app/uzupelnij-profil/page.tsx
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -11,13 +10,12 @@ import { api } from "@/trpc/react";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { VolunteerForm } from "../_components/register/VolunteerForm";
-import { OrganizationForm } from "../_components/register/OrganizationForm";
-import { CoordinatorForm } from "../_components/register/CoordinatorForm";
-import HalfImageScreen from "../_components/layout/HalfImageScreen";
-import AuthFormHeader from "../_components/layout/AuthFormHeader";
+import { VolunteerForm } from "../../components/register/VolunteerForm";
+import { OrganizationForm } from "../../components/register/OrganizationForm";
+import { CoordinatorForm } from "../../components/register/CoordinatorForm";
+import HalfImageScreen from "../../components/layout/HalfImageScreen";
+import AuthFormHeader from "../../components/layout/AuthFormHeader";
 
-// Schematy walidacji (bez zmian)
 const volunteerSchema = z.object({
   role: z.literal("wolontariusz"),
   firstName: z.string().min(2, "Imię jest wymagane"),
