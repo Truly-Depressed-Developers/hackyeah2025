@@ -14,6 +14,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VolunteerForm } from "../_components/register/VolunteerForm";
 import { OrganizationForm } from "../_components/register/OrganizationForm";
 import { CoordinatorForm } from "../_components/register/CoordinatorForm";
+import HalfImageScreen from "../_components/layout/HalfImageScreen";
+import AuthFormHeader from "../_components/layout/AuthFormHeader";
 
 // Schematy walidacji (bez zmian)
 const volunteerSchema = z.object({
@@ -89,65 +91,74 @@ export default function CompleteProfilePage() {
     completeProfile.mutate(data);
   }
 
-  if (!session) {
-    return (
-      <div className="flex h-full w-full justify-center p-5 text-xl font-bold">
-        Ładowanie...
-      </div>
-    );
-  }
-
   return (
-    <div className="container m-4 mx-auto flex max-w-3xl flex-col gap-y-4 p-4">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold">Uzupełnij swój profil</h1>
-        <p>Wybierz swoją rolę i podaj wymagane informacje.</p>
-      </div>
+    <HalfImageScreen imageUrl="/cracow.jpg">
+      <AuthFormHeader />
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="mt-4 space-y-6">
-          <Tabs
-            value={selectedRole}
-            onValueChange={handleTabChange}
-            className="w-full gap-5"
-          >
-            <TabsList className="mx-auto grid w-full max-w-96 grid-cols-3">
-              <TabsTrigger value="wolontariusz">Wolontariusz</TabsTrigger>
-              <TabsTrigger value="organizator">Organizator</TabsTrigger>
-              <TabsTrigger value="koordynator">Koordynator</TabsTrigger>
-            </TabsList>
-
-            <div className="border-muted rounded-md border-2 p-4">
-              <TabsContent value="wolontariusz">
-                <VolunteerForm control={form.control} />
-              </TabsContent>
-              <TabsContent value="organizator">
-                <OrganizationForm control={form.control} />
-              </TabsContent>
-              <TabsContent value="koordynator">
-                <CoordinatorForm control={form.control} />
-              </TabsContent>
-            </div>
-          </Tabs>
-
-          {completeProfile.error && (
-            <p className="text-destructive text-sm font-medium">
-              {completeProfile.error.message}
+      {!session ? (
+        <div className="flex h-full items-center justify-center text-2xl font-bold">
+          Ładowanie...
+        </div>
+      ) : (
+        <div className="mt-24 flex h-full w-full max-w-2xl flex-col justify-start gap-4 p-6">
+          <div className="gap-y-2">
+            <h1 className="text-2xl font-bold md:text-5xl">
+              Uzupełnij swój profil
+            </h1>
+            <p className="text-muted-foreground mt-2 text-lg">
+              Wybierz swoją rolę i podaj wymagane informacje.
             </p>
-          )}
+          </div>
 
-          <Button
-            type="submit"
-            disabled={completeProfile.isPending || !selectedRole}
-            className="w-full"
-            onClick={() => {
-              console.log("test");
-            }}
-          >
-            {completeProfile.isPending ? "Zapisywanie..." : "Zapisz profil"}
-          </Button>
-        </form>
-      </Form>
-    </div>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="mt-2 space-y-6"
+            >
+              <Tabs
+                value={selectedRole}
+                onValueChange={handleTabChange}
+                className="w-full gap-2"
+              >
+                <TabsList className="grid h-full w-full max-w-lg grid-cols-3">
+                  <TabsTrigger value="wolontariusz">Wolontariusz</TabsTrigger>
+                  <TabsTrigger value="organizator">Organizator</TabsTrigger>
+                  <TabsTrigger value="koordynator">Koordynator</TabsTrigger>
+                </TabsList>
+
+                <div className="mt-2">
+                  <TabsContent value="wolontariusz">
+                    <VolunteerForm control={form.control} />
+                  </TabsContent>
+                  <TabsContent value="organizator">
+                    <OrganizationForm control={form.control} />
+                  </TabsContent>
+                  <TabsContent value="koordynator">
+                    <CoordinatorForm control={form.control} />
+                  </TabsContent>
+                </div>
+              </Tabs>
+
+              {completeProfile.error && (
+                <p className="text-destructive text-sm font-medium">
+                  {completeProfile.error.message}
+                </p>
+              )}
+
+              <Button
+                type="submit"
+                disabled={completeProfile.isPending || !selectedRole}
+                className="w-full"
+                onClick={() => {
+                  console.log("test");
+                }}
+              >
+                {completeProfile.isPending ? "Zapisywanie..." : "Zapisz profil"}
+              </Button>
+            </form>
+          </Form>
+        </div>
+      )}
+    </HalfImageScreen>
   );
 }
