@@ -10,21 +10,24 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { UploadButton } from "@/lib/uploadthing";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, Trash2 } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import Map from "@/components/Map/Map";
-import { Textarea } from "@/components/ui/textarea";
-import TagsInputComponent from "./TagsInputComponent";
-import WorkloadInputComponent from "./WorkloadInputComponent";
-import FormInputComponent from "./FormInputComponent";
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
+import Map from "@/components/Map/Map";
 import { DatePicker } from "../ui/date-picker";
+import FormInputComponent from "./FormInputComponent";
+import TagsInputComponent from "./TagsInputComponent";
 import {
   volunteerRequestSchema,
   type VolunteerFormRequestSchema,
 } from "./VolunteerRequestForm.utils";
+import WorkloadInputComponent from "./WorkloadInputComponent";
 
 type Props = {
   className?: string;
@@ -40,6 +43,8 @@ export function VolunteerRequestForm({ className }: Props) {
     long: undefined,
     lat: undefined,
   });
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const form = useForm<VolunteerFormRequestSchema>({
     resolver: zodResolver(volunteerRequestSchema),
@@ -57,6 +62,31 @@ export function VolunteerRequestForm({ className }: Props) {
   function onSubmit(values: VolunteerFormRequestSchema) {
     console.log(values);
   }
+
+  const handleDeleteImage = async (
+    imageUrl: string,
+    onChange: (value: string) => void,
+  ) => {
+    setIsDeleting(true);
+    try {
+      // Extract the file key from the URL for UploadThing deletion
+      const fileKey = imageUrl.split("/").pop();
+      if (fileKey) {
+        // Note: You'll need to implement server-side deletion endpoint
+        // await fetch(`/api/uploadthing/delete`, {
+        //   method: 'POST',
+        //   headers: { 'Content-Type': 'application/json' },
+        //   body: JSON.stringify({ fileKey })
+        // });
+      }
+      onChange("");
+      // showToast({ title: "Obraz został usunięty" });
+    } catch {
+      // showToast({ title: "Błąd podczas usuwania obrazu" });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <Form {...form}>
@@ -117,9 +147,85 @@ export function VolunteerRequestForm({ className }: Props) {
           name="thumbnail"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Miniaturka (URL)</FormLabel>
+              <FormLabel>Miniaturka</FormLabel>
               <FormControl>
-                <Input placeholder="https://example.com/image.jpg" {...field} />
+                <div className="space-y-2">
+                  {field.value && (
+                    <div className="relative">
+                      <Image
+                        src={field.value}
+                        alt="Ładowanie..."
+                        width={200}
+                        height={128}
+                        className="h-32 w-full rounded-md border object-cover"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-2 right-2"
+                        onClick={() =>
+                          handleDeleteImage(field.value, field.onChange)
+                        }
+                        disabled={isDeleting}
+                      >
+                        {isDeleting ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <>
+                            <Trash2 className="mr-1 h-4 w-4" />
+                            Usuń
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                  {!field.value && (
+                    <UploadButton
+                      endpoint="imageUploader"
+                      content={{
+                        button({ ready }) {
+                          if (ready) return "Wybierz plik";
+                          return "Przygotowywanie...";
+                        },
+                        allowedContent({ ready, isUploading }) {
+                          if (!ready) return "Sprawdzanie...";
+                          if (isUploading) return "Przesyłanie...";
+                          return "Dozwolone: obrazki (jpg, png) do 4MB";
+                        },
+                      }}
+                      appearance={{
+                        button:
+                          "ut-uploading:cursor-not-allowed bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md",
+                        allowedContent: "text-muted-foreground text-xs",
+                      }}
+                      className="ut-button:w-full ut-button:justify-center"
+                      onUploadBegin={() => {
+                        setIsUploading(true);
+                      }}
+                      onClientUploadComplete={(res) => {
+                        if (res?.[0]) {
+                          field.onChange(res[0].ufsUrl);
+                          // showToast({ title: "Plik został przesłany!" });
+                        }
+                        setIsUploading(false);
+                      }}
+                      onUploadError={(_error: Error) => {
+                        // showToast({
+                        //   title: "Błąd przesyłania",
+                        //   description: _error.message,
+                        // });
+                        setIsUploading(false);
+                      }}
+                    />
+                  )}
+                  {isUploading && (
+                    <div className="text-muted-foreground flex items-center justify-center space-x-2 text-sm">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Przesyłanie pliku...</span>
+                    </div>
+                  )}
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -257,7 +363,9 @@ export function VolunteerRequestForm({ className }: Props) {
         />
 
         <div className="flex justify-end">
-          <Button type="submit">Stwórz</Button>
+          <Button type="submit" disabled={isUploading}>
+            Stwórz
+          </Button>
         </div>
       </form>
     </Form>
