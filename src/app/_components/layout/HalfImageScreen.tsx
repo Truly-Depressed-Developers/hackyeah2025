@@ -14,7 +14,7 @@ export default function HalfImageScreen({
       <div className="relative hidden w-1/2 lg:block">
         <Image
           src={imageUrl}
-          alt="damn"
+          alt="zdjecie pogladowe miasta"
           fill
           style={{ objectFit: "cover" }}
           sizes="50vw"
@@ -22,7 +22,9 @@ export default function HalfImageScreen({
           priority
         />
       </div>
-      <div className="w-full lg:w-1/2">{children}</div>
+      <div className="w-full lg:w-1/2">
+        <div className="flex h-full w-full flex-col">{children}</div>
+      </div>
     </div>
   );
 }
