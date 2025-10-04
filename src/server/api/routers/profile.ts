@@ -31,6 +31,46 @@ const profileInputSchema = z.discriminatedUnion("role", [
 ]);
 
 export const profileRouter = createTRPCRouter({
+  getCurrent: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+
+    const user = await ctx.db.query.users.findFirst({
+      where: eq(users.id, userId),
+      with: {
+        volunteer: true,
+        company: true,
+        coordinator: true,
+      },
+    });
+
+    if (!user) {
+      throw new Error("Użytkownik nie został znaleziony");
+    }
+
+    let profileData = {};
+    switch (user.role) {
+      case "wolontariusz":
+        profileData = user.volunteer;
+        break;
+      case "organizator":
+        profileData = user.company;
+        break;
+      case "koordynator":
+        profileData = user.coordinator;
+        break;
+    }
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      image: user.image,
+      role: user.role,
+      profileCompleted: user.profileCompleted,
+      profileData,
+    };
+  }),
+
   // Definiujemy mutację, czyli operację, która zmienia dane
   complete: protectedProcedure // Używamy `protectedProcedure`, aby upewnić się, że tylko zalogowani użytkownicy mogą ją wywołać
     .input(profileInputSchema) // Automatyczna walidacja danych wejściowych

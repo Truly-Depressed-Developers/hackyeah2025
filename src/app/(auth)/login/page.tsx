@@ -1,4 +1,5 @@
 import HalfImageScreen from "@/app/_components/layout/HalfImageScreen";
+import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -7,32 +8,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { signIn } from "@/server/auth";
-import { sign } from "crypto";
 import { Accessibility, ChevronDown } from "lucide-react";
 import Image from "next/image";
 
 const DISCORD_ICON_URL = "/discord.png";
 const GOOGLE_ICON_URL = "/google.png";
 const PL_FLAG_URL = "/poland.png";
-const MLODY_KRAKOW_LOGO_URL = "/Mlody_Krakow_LOGO.png";
 const CRACOW_IMAGE_URL = "/cracow.jpg";
 
 export default function LoginPage() {
-  const loginDiscord = () => {
-    signIn("discord");
-  };
-
   return (
     <HalfImageScreen imageUrl={CRACOW_IMAGE_URL}>
       <div className="flex h-full w-full flex-col">
         <header className="flex items-end justify-between p-4 md:p-8">
-          <Image
-            src={MLODY_KRAKOW_LOGO_URL}
-            alt="Młody Kraków Logo"
-            width={120}
-            height={70}
-            className="h-auto w-24 md:w-32"
-          />
           <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -40,13 +28,7 @@ export default function LoginPage() {
                   variant="outline"
                   className="flex min-h-12 min-w-42 items-center"
                 >
-                  <Image
-                    src={PL_FLAG_URL}
-                    alt="Polska flaga"
-                    width={24}
-                    height={24}
-                    className="mr-2"
-                  />
+                  <Logo />
                   <p className="text-lg">Polski</p>
                   <ChevronDown className="ml-2 h-4 w-4" />
                 </Button>
