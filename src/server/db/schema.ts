@@ -11,27 +11,6 @@ import type { UserRole } from "./types";
  */
 export const createTable = pgTableCreator((name) => `hackyeah2025_${name}`);
 
-export const posts = createTable(
-  "post",
-  (d) => ({
-    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-    name: d.varchar({ length: 256 }),
-    createdById: d
-      .varchar({ length: 255 })
-      .notNull()
-      .references(() => users.id),
-    createdAt: d
-      .timestamp({ withTimezone: true })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
-  }),
-  (t) => [
-    index("created_by_idx").on(t.createdById),
-    index("name_idx").on(t.name),
-  ],
-);
-
 export const users = createTable("user", (d) => ({
   id: d
     .varchar({ length: 255 })
@@ -58,6 +37,7 @@ export const users = createTable("user", (d) => ({
 export const usersRelations = relations(users, ({ many, one }) => ({
   accounts: many(accounts),
   sessions: many(sessions),
+  events: many(events),
   volunteer: one(volunteers, {
     fields: [users.id],
     references: [volunteers.userId],
@@ -159,3 +139,85 @@ export const verificationTokens = createTable(
   }),
   (t) => [primaryKey({ columns: [t.identifier, t.token] })],
 );
+
+export const events = createTable("event", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  name: d.varchar({ length: 255 }).notNull(),
+  description: d.text().notNull(),
+  organizerName: d.varchar({ length: 255 }).notNull(),
+  tags: d.jsonb().$type<string[]>().default([]),
+  thumbnail: d.varchar({ length: 500 }),
+  latitude: d.real(),
+  longitude: d.real(),
+  startDate: d.timestamp({ mode: "date", withTimezone: true }),
+  endDate: d.timestamp({ mode: "date", withTimezone: true }),
+  workload: d
+    .jsonb()
+    .$type<("Mini" | "Lekkie" | "Umiarkowane" | "Pełne")[]>()
+    .default([]),
+  form: d
+    .jsonb()
+    .$type<
+      (
+        | "Zostań aktywistą online"
+        | "Dbaj o potrzeby dzielnicy"
+        | "Weź udział w akcjach bezpośrednich"
+        | "Spotkaj się z mieszkańcami"
+        | "Zaangażuj się w obywatelską kontrolę"
+        | "Wesprzyj pogotowie obywatelskie"
+      )[]
+    >()
+    .default([]),
+  createdById: d
+    .varchar({ length: 255 })
+    .notNull()
+    .references(() => users.id),
+  createdAt: d
+    .timestamp({ mode: "date", withTimezone: true })
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: d
+    .timestamp({ mode: "date", withTimezone: true })
+    .$onUpdate(() => new Date()),
+}));
+
+export const eventsRelations = relations(events, ({ one, many }) => ({
+  createdBy: one(users, {
+    fields: [events.createdById],
+    references: [users.id],
+  }),
+  applications: many(applications),
+}));
+
+export const applications = createTable("application", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  volunteerId: d
+    .integer()
+    .notNull()
+    .references(() => volunteers.id),
+  eventId: d
+    .integer()
+    .notNull()
+    .references(() => events.id),
+  message: d.text(),
+  status: d
+    .varchar({ length: 50 })
+    .$type<"pending" | "accepted" | "rejected">()
+    .notNull()
+    .default("pending"),
+  createdAt: d
+    .timestamp({ mode: "date", withTimezone: true })
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
+}));
+
+export const applicationsRelations = relations(applications, ({ one }) => ({
+  volunteer: one(volunteers, {
+    fields: [applications.volunteerId],
+    references: [volunteers.id],
+  }),
+  event: one(events, {
+    fields: [applications.eventId],
+    references: [events.id],
+  }),
+}));
