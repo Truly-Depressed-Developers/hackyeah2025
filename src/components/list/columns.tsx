@@ -6,18 +6,23 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { api } from "@/trpc/react";
+import { toast } from "sonner";
 
 export type ApplicationInfo = {
   id: number;
   volunteerId: number;
-  eventId: number;
+  eventId: number | null;
+  externalEventId: string;
+  eventTitle: string | null;
+  companyName: string | null;
   message: string | null;
   status: "pending" | "accepted" | "rejected";
   createdAt: Date;
   volunteerName: string | null;
   volunteerEmail: string | null;
-  eventName: string;
+  eventName: string | null;
   eventDate: Date | null;
+  eventSyncStatus: "pending" | "synced" | "error" | null;
 };
 
 export const columns: ColumnDef<ApplicationInfo>[] = [
@@ -36,8 +41,31 @@ export const columns: ColumnDef<ApplicationInfo>[] = [
     ),
   },
   {
-    accessorKey: "eventName",
+    accessorKey: "eventName", // Add eventName as accessor
+    id: "event",
     header: "Wydarzenie",
+    cell: ({ row }) => {
+      const localEventName = row.getValue("eventName");
+      const storedTitle = row.original.eventTitle;
+      const syncStatus = row.original.eventSyncStatus;
+
+      const eventName =
+        (typeof localEventName === "string" ? localEventName : null) ??
+        storedTitle ??
+        "Nieznane wydarzenie";
+
+      return (
+        <div className="flex flex-col">
+          <span>{eventName}</span>
+          {syncStatus === "pending" && (
+            <span className="text-xs text-orange-600">⏳ Oczekuje synch.</span>
+          )}
+          {syncStatus === "error" && (
+            <span className="text-xs text-red-600">❌ Błąd synch.</span>
+          )}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "status",
@@ -81,11 +109,11 @@ export const columns: ColumnDef<ApplicationInfo>[] = [
 
       const updateStatus = api.applications.updateStatus.useMutation({
         onSuccess: () => {
-          console.log("Status aplikacji został zaktualizowany");
+          toast.success("Status aplikacji został zaktualizowany");
           void utils.applications.getForCompany.invalidate();
         },
-        onError: (error) => {
-          console.error("Błąd przy aktualizacji statusu:", error.message);
+        onError: () => {
+          toast.error("Błąd przy aktualizacji statusu");
         },
       });
 

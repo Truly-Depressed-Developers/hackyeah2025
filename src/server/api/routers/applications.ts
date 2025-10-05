@@ -1,36 +1,46 @@
 import { z } from "zod";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { applications, events, volunteers, users } from "@/server/db/schema";
 
 export const applicationsRouter = createTRPCRouter({
-  getForCompany: protectedProcedure.query(async ({ ctx }) => {
-    const result = await ctx.db
-      .select({
-        id: applications.id,
-        volunteerId: applications.volunteerId,
-        eventId: applications.eventId,
-        message: applications.message,
-        status: applications.status,
-        createdAt: applications.createdAt,
-        volunteerName: users.name,
-        volunteerEmail: users.email,
-        eventName: events.name,
-        eventDate: events.startDate,
-      })
-      .from(applications)
-      .innerJoin(volunteers, eq(applications.volunteerId, volunteers.id))
-      .innerJoin(users, eq(volunteers.userId, users.id))
-      .innerJoin(events, eq(applications.eventId, events.id))
-      .where(eq(events.createdById, "test-user-2"))
-      .orderBy(applications.createdAt);
+  getForCompany: protectedProcedure
+    .input(z.object({ companyName: z.string().optional() }))
+    .query(async ({ ctx, input }) => {
+      const result = await ctx.db
+        .select({
+          id: applications.id,
+          volunteerId: applications.volunteerId,
+          eventId: applications.eventId,
+          externalEventId: applications.externalEventId,
+          eventTitle: applications.eventTitle,
+          companyName: applications.companyName,
+          message: applications.message,
+          status: applications.status,
+          createdAt: applications.createdAt,
+          volunteerName: users.name,
+          volunteerEmail: users.email,
+          eventName: events.name,
+          eventDate: events.startDate,
+          eventSyncStatus: events.syncStatus,
+        })
+        .from(applications)
+        .innerJoin(volunteers, eq(applications.volunteerId, volunteers.id))
+        .innerJoin(users, eq(volunteers.userId, users.id))
+        .leftJoin(events, eq(applications.eventId, events.id))
+        .where(
+          input.companyName
+            ? eq(applications.companyName, input.companyName)
+            : eq(applications.companyName, "Fundacja Kraków"),
+        )
+        .orderBy(applications.createdAt);
 
-    return result;
-  }),
+      return result;
+    }),
 
-  getForEvent: protectedProcedure
-    .input(z.object({ eventId: z.number() }))
+  getForExternalEvent: protectedProcedure
+    .input(z.object({ externalEventId: z.string() }))
     .query(async ({ ctx, input }) => {
       const result = await ctx.db
         .select({
@@ -45,13 +55,7 @@ export const applicationsRouter = createTRPCRouter({
         .from(applications)
         .innerJoin(volunteers, eq(applications.volunteerId, volunteers.id))
         .innerJoin(users, eq(volunteers.userId, users.id))
-        .innerJoin(events, eq(applications.eventId, events.id))
-        .where(
-          and(
-            eq(applications.eventId, input.eventId),
-            eq(events.createdById, ctx.session.user.id),
-          ),
-        )
+        .where(eq(applications.externalEventId, input.externalEventId))
         .orderBy(applications.createdAt);
 
       return result;
@@ -65,22 +69,6 @@ export const applicationsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const application = await ctx.db
-        .select({
-          eventCreatedById: events.createdById,
-        })
-        .from(applications)
-        .innerJoin(events, eq(applications.eventId, events.id))
-        .where(eq(applications.id, input.applicationId))
-        .limit(1);
-
-      if (
-        !application[0] ||
-        application[0].eventCreatedById !== ctx.session.user.id
-      ) {
-        throw new Error("Unauthorized to update this application");
-      }
-
       const result = await ctx.db
         .update(applications)
         .set({ status: input.status })
@@ -93,7 +81,10 @@ export const applicationsRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
-        eventId: z.number(),
+        eventId: z.number().optional(),
+        externalEventId: z.string(),
+        eventTitle: z.string().optional(),
+        companyName: z.string().optional(),
         message: z.string().optional(),
       }),
     )
@@ -114,7 +105,10 @@ export const applicationsRouter = createTRPCRouter({
         .insert(applications)
         .values({
           volunteerId: volunteer[0].id,
-          eventId: input.eventId,
+          eventId: input.eventId ?? null,
+          externalEventId: input.externalEventId,
+          eventTitle: input.eventTitle ?? null,
+          companyName: input.companyName ?? null,
           message: input.message ?? null,
         })
         .returning();

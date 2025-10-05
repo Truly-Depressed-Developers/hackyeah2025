@@ -190,6 +190,13 @@ export const events = createTable("event", (d) => ({
       )[]
     >()
     .default([]),
+  externalId: d.varchar({ length: 255 }).unique(),
+  syncStatus: d
+    .varchar({ length: 50 })
+    .$type<"pending" | "synced" | "error">()
+    .notNull()
+    .default("pending"),
+  lastSyncedAt: d.timestamp({ mode: "date", withTimezone: true }),
   createdById: d
     .varchar({ length: 255 })
     .notNull()
@@ -217,10 +224,10 @@ export const applications = createTable("application", (d) => ({
     .integer()
     .notNull()
     .references(() => volunteers.id),
-  eventId: d
-    .integer()
-    .notNull()
-    .references(() => events.id),
+  eventId: d.integer().references(() => events.id),
+  externalEventId: d.varchar({ length: 255 }).notNull(),
+  eventTitle: d.varchar({ length: 255 }),
+  companyName: d.varchar({ length: 255 }),
   message: d.text(),
   status: d
     .varchar({ length: 50 })

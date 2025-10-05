@@ -20,6 +20,10 @@ export const env = createEnv({
       .enum(["development", "test", "production"])
       .default("development"),
     UPLOADTHING_TOKEN: z.string(),
+    EXTERNAL_API_URL: z.string().url(),
+    EXTERNAL_API_KEY: z.string(),
+    STREAM_TOKEN: z.string(),
+    STREAM_API_KEY_BACK: z.string(),
   },
 
   /**
@@ -29,6 +33,7 @@ export const env = createEnv({
    */
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
+    NEXT_PUBLIC_STREAM_API_KEY_FRONT: z.string(),
   },
 
   /**
@@ -44,6 +49,12 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
+    EXTERNAL_API_URL: process.env.EXTERNAL_API_URL,
+    EXTERNAL_API_KEY: process.env.EXTERNAL_API_KEY,
+    STREAM_TOKEN: process.env.STREAM_TOKEN,
+    NEXT_PUBLIC_STREAM_API_KEY_FRONT:
+      process.env.NEXT_PUBLIC_STREAM_API_KEY_FRONT,
+    STREAM_API_KEY_BACK: process.env.STREAM_API_KEY_BACK,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

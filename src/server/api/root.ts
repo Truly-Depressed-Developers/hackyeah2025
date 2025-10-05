@@ -1,8 +1,8 @@
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { profileRouter } from "./routers/profile";
-import { volunteerRequestRouter } from "./routers/volunteerRequest";
 import { applicationsRouter } from "./routers/applications";
 import { eventRouter } from "./routers/event";
+import { externalAPIRouter } from "./routers/externalAPI";
 
 /**
  * This is the primary router for your server.
@@ -11,9 +11,9 @@ import { eventRouter } from "./routers/event";
  */
 export const appRouter = createTRPCRouter({
   profile: profileRouter,
-  volunteerRequest: volunteerRequestRouter,
   applications: applicationsRouter,
   event: eventRouter,
+  externalAPI: externalAPIRouter,
 });
 
 // export type definition of API

@@ -7,6 +7,7 @@ import {
   Notebook,
   Search,
   User,
+  MessageSquare,
 } from "lucide-react";
 
 import {
@@ -31,7 +32,7 @@ const items = [
   },
   {
     title: "Moje inicjatywy",
-    url: "#",
+    url: "/dashboard",
     icon: Notebook,
   },
   {
@@ -41,8 +42,13 @@ const items = [
   },
   {
     title: "Kalendarz",
-    url: "#",
+    url: "/calendar",
     icon: Calendar,
+  },
+  {
+    title: "Czat",
+    url: "/chat",
+    icon: MessageSquare,
   },
 ];
 

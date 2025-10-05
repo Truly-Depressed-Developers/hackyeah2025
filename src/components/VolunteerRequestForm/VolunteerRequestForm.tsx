@@ -29,7 +29,7 @@ import {
 } from "./VolunteerRequestForm.utils";
 import WorkloadInputComponent from "./WorkloadInputComponent";
 import { api } from "@/trpc/react";
-import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type Props = {
   className?: string;
@@ -41,25 +41,12 @@ type Marker = {
 };
 
 export function VolunteerRequestForm({ className }: Props) {
-  const router = useRouter();
   const [markerData, setMarkerData] = useState<Marker>({
     long: undefined,
     lat: undefined,
   });
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  const createVolunteerRequest = api.volunteerRequest.create.useMutation({
-    onSuccess: (data) => {
-      console.log("Volunteer request created:", data);
-      router.push("/");
-      // You could also show a success toast here
-    },
-    onError: (error) => {
-      console.error("Error creating volunteer request:", error);
-      // You could show an error toast here
-    },
-  });
 
   const form = useForm<VolunteerFormRequestSchema>({
     resolver: zodResolver(volunteerRequestSchema),
@@ -68,7 +55,7 @@ export function VolunteerRequestForm({ className }: Props) {
       description: "",
       organizerName: "",
       tags: [],
-      thumbnail: "",
+      thumbnail: undefined,
       workload: [],
       form: [],
       latitude: undefined,
@@ -78,30 +65,33 @@ export function VolunteerRequestForm({ className }: Props) {
     },
   });
 
+  const createOpportunity = api.externalAPI.createOpportunity.useMutation({
+    onSuccess: (data) => {
+      form.reset();
+      if (data.success) {
+        toast.success(
+          data.message || "Ogłoszenie zostało pomyślnie utworzone!",
+        );
+      } else {
+        toast.warning(data.message || "Ogłoszenie zostało zapisane lokalnie");
+      }
+    },
+    onError: (error) => {
+      toast.error(`Błąd podczas tworzenia ogłoszenia: ${error.message}`);
+    },
+  });
+
   function onSubmit(values: VolunteerFormRequestSchema) {
-    createVolunteerRequest.mutate(values);
+    createOpportunity.mutate(values);
   }
 
-  const handleDeleteImage = async (
-    imageUrl: string,
-    onChange: (value: string) => void,
-  ) => {
+  const handleDeleteImage = async (onChange: (value: string) => void) => {
     setIsDeleting(true);
     try {
-      // Extract the file key from the URL for UploadThing deletion
-      const fileKey = imageUrl.split("/").pop();
-      if (fileKey) {
-        // Note: You'll need to implement server-side deletion endpoint
-        // await fetch(`/api/uploadthing/delete`, {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify({ fileKey })
-        // });
-      }
       onChange("");
-      // showToast({ title: "Obraz został usunięty" });
+      toast.success("Obraz został usunięty");
     } catch {
-      // showToast({ title: "Błąd podczas usuwania obrazu" });
+      toast.error("Błąd podczas usuwania obrazu");
     } finally {
       setIsDeleting(false);
     }
@@ -183,9 +173,11 @@ export function VolunteerRequestForm({ className }: Props) {
                         variant="destructive"
                         size="sm"
                         className="absolute top-2 right-2"
-                        onClick={() =>
-                          handleDeleteImage(field.value, field.onChange)
-                        }
+                        onClick={() => {
+                          if (field.value) {
+                            void handleDeleteImage(field.onChange);
+                          }
+                        }}
                         disabled={isDeleting}
                       >
                         {isDeleting ? (
@@ -224,16 +216,13 @@ export function VolunteerRequestForm({ className }: Props) {
                       }}
                       onClientUploadComplete={(res) => {
                         if (res?.[0]) {
-                          field.onChange(res[0].url);
-                          // showToast({ title: "Plik został przesłany!" });
+                          field.onChange(res[0].ufsUrl);
+                          toast.success("Plik został przesłany!");
                         }
                         setIsUploading(false);
                       }}
                       onUploadError={(_error: Error) => {
-                        // showToast({
-                        //   title: "Błąd przesyłania",
-                        //   description: _error.message,
-                        // });
+                        toast.error("Błąd przesyłania");
                         setIsUploading(false);
                       }}
                     />
@@ -384,9 +373,9 @@ export function VolunteerRequestForm({ className }: Props) {
         <div className="flex justify-end">
           <Button
             type="submit"
-            disabled={isUploading || createVolunteerRequest.isPending}
+            disabled={isUploading || createOpportunity.isPending}
           >
-            {createVolunteerRequest.isPending ? (
+            {createOpportunity.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Tworzenie...

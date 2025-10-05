@@ -35,9 +35,6 @@ async function seed() {
       sql`TRUNCATE TABLE hackyeah2025_application RESTART IDENTITY CASCADE`,
     );
     await db.execute(
-      sql`TRUNCATE TABLE hackyeah2025_event RESTART IDENTITY CASCADE`,
-    );
-    await db.execute(
       sql`TRUNCATE TABLE hackyeah2025_volunteer RESTART IDENTITY CASCADE`,
     );
     await db.execute(
@@ -131,150 +128,108 @@ async function seed() {
 
     console.log("✅ Created user profiles");
 
-    // Create some sample volunteer requests
-    await db.insert(events).values([
-      {
-        name: "Sprzątanie Parku Jordana",
-        description:
-          "Wspólne sprzątanie parku przed weekendem majowym. Potrzebujemy wolontariuszy do zbierania śmieci, grabienia liści i drobnych prac porządkowych.",
-        organizerName: "Fundacja Kraków",
-        tags: ["ekologia", "park", "sprzatanie"],
-        latitude: 50.0614,
-        longitude: 19.9365,
-        startDate: new Date("2025-04-27T09:00:00Z"),
-        endDate: new Date("2025-04-27T15:00:00Z"),
-        workload: ["Lekkie"],
-        form: [
-          "Weź udział w akcjach bezpośrednich",
-          "Spotkaj się z mieszkańcami",
-        ],
-        createdById: "test-user-2",
-      },
-      {
-        name: "Warsztaty komputerowe dla seniorów",
-        description:
-          "Pomóż seniorom w nauce obsługi komputera i internetu. Mile widziana cierpliwość i podstawowa znajomość technologii.",
-        organizerName: "Centrum Seniora",
-        tags: ["seniorzy", "edukacja", "technologia"],
-        latitude: 50.0647,
-        longitude: 19.945,
-        startDate: new Date("2025-05-15T14:00:00Z"),
-        endDate: new Date("2025-05-15T17:00:00Z"),
-        workload: ["Umiarkowane"],
-        form: ["Spotkaj się z mieszkańcami", "Dbaj o potrzeby dzielnicy"],
-        createdById: "test-user-2",
-      },
-      {
-        name: "Kampania edukacyjna o segregacji śmieci",
-        description:
-          "Dołącz do kampanii informacyjnej o właściwej segregacji odpadów. Będziemy rozdawać ulotki i rozmawiać z mieszkańcami o ekologii.",
-        organizerName: "EkoKraków",
-        tags: ["ekologia", "edukacja", "segregacja"],
-        latitude: 50.0619,
-        longitude: 19.937,
-        startDate: new Date("2025-06-01T10:00:00Z"),
-        endDate: new Date("2025-06-01T14:00:00Z"),
-        workload: ["Mini", "Lekkie"],
-        form: ["Zostań aktywistą online", "Spotkaj się z mieszkańcami"],
-        createdById: "test-user-2",
-      },
-      {
-        name: "Pomoc w organizacji festynu dzielnicowego",
-        description:
-          "Poszukujemy wolontariuszy do pomocy przy organizacji festynu w dzielnicy Podgórze. Zadania obejmują obsługę stoisk, animacje dla dzieci i porządkowanie terenu.",
-        organizerName: "Rada Dzielnicy Podgórze",
-        tags: ["festyn", "dzielnica", "dzieci", "kultura"],
-        latitude: 50.0335,
-        longitude: 19.9697,
-        startDate: new Date("2025-07-20T08:00:00Z"),
-        endDate: new Date("2025-07-20T18:00:00Z"),
-        workload: ["Pełne"],
-        form: [
-          "Weź udział w akcjach bezpośrednich",
-          "Spotkaj się z mieszkańcami",
-          "Dbaj o potrzeby dzielnicy",
-        ],
-        createdById: "test-user-2",
-      },
-      {
-        name: "Sadzenie drzew w Lesie Wolskim",
-        description:
-          "Akcja sadzenia młodych drzew w Lesie Wolskim. Zapewniamy narzędzia i sadzonki. Potrzebne są osoby w dobrej kondycji fizycznej.",
-        organizerName: "Las Miejski Kraków",
-        tags: ["las", "sadzenie", "ekologia", "przyroda"],
-        latitude: 50.0755,
-        longitude: 19.8683,
-        startDate: new Date("2025-03-15T08:00:00Z"),
-        endDate: new Date("2025-03-15T16:00:00Z"),
-        workload: ["Umiarkowane", "Pełne"],
-        form: ["Weź udział w akcjach bezpośrednich"],
-        createdById: "test-user-2",
-      },
-      {
-        name: "Zbiórka żywności dla potrzebujących",
-        description:
-          "Organizujemy zbiórkę żywności przy głównych sklepach miasta. Potrzebujemy wolontariuszy do informowania mieszkańców i zbierania darów.",
-        organizerName: "Caritas Kraków",
-        tags: ["pomoc-społeczna", "żywność", "charytatywność"],
-        latitude: 50.0647,
-        longitude: 19.945,
-        startDate: new Date("2025-12-15T10:00:00Z"),
-        endDate: new Date("2025-12-15T18:00:00Z"),
-        workload: ["Lekkie", "Umiarkowane"],
-        form: ["Spotkaj się z mieszkańcami", "Dbaj o potrzeby dzielnicy"],
-        createdById: "test-user-2",
-      },
-    ]);
+    // Create sample events locally (these would normally come from external API)
+    const sampleEvents = await db
+      .insert(events)
+      .values([
+        {
+          name: "Sprzątanie Parku Jordana",
+          description:
+            "Wspólne sprzątanie parku przed weekendem majowym. Potrzebujemy wolontariuszy do zbierania śmieci, grabienia liści i drobnych prac porządkowych.",
+          organizerName: "Fundacja Kraków",
+          tags: ["ekologia", "park", "sprzatanie"],
+          latitude: 50.0614,
+          longitude: 19.9365,
+          startDate: new Date("2025-04-27T09:00:00Z"),
+          endDate: new Date("2025-04-27T15:00:00Z"),
+          workload: ["Lekkie"],
+          form: [
+            "Weź udział w akcjach bezpośrednich",
+            "Spotkaj się z mieszkańcami",
+          ],
+          externalId: "ext-event-001",
+          syncStatus: "synced",
+          lastSyncedAt: new Date(),
+          createdById: "test-user-2",
+        },
+        {
+          name: "Warsztaty komputerowe dla seniorów",
+          description:
+            "Pomóż seniorom w nauce obsługi komputera i internetu. Mile widziana cierpliwość i podstawowa znajomość technologii.",
+          organizerName: "Centrum Seniora",
+          tags: ["seniorzy", "edukacja", "technologia"],
+          latitude: 50.0647,
+          longitude: 19.945,
+          startDate: new Date("2025-05-15T14:00:00Z"),
+          endDate: new Date("2025-05-15T17:00:00Z"),
+          workload: ["Umiarkowane"],
+          form: ["Spotkaj się z mieszkańcami", "Dbaj o potrzeby dzielnicy"],
+          externalId: "ext-event-002",
+          syncStatus: "synced",
+          lastSyncedAt: new Date(),
+          createdById: "test-user-2",
+        },
+        {
+          name: "Kampania edukacyjna o segregacji śmieci",
+          description:
+            "Dołącz do kampanii informacyjnej o właściwej segregacji odpadów. Będziemy rozdawać ulotki i rozmawiać z mieszkańcami o ekologii.",
+          organizerName: "EkoKraków",
+          tags: ["ekologia", "edukacja", "segregacja"],
+          latitude: 50.0619,
+          longitude: 19.937,
+          startDate: new Date("2025-06-01T10:00:00Z"),
+          endDate: new Date("2025-06-01T14:00:00Z"),
+          workload: ["Mini", "Lekkie"],
+          form: ["Zostań aktywistą online", "Spotkaj się z mieszkańcami"],
+          externalId: "ext-event-003",
+          syncStatus: "synced",
+          lastSyncedAt: new Date(),
+          createdById: "test-user-2",
+        },
+      ])
+      .returning();
 
     console.log("✅ Created sample events");
 
-    // Create sample applications for the events
+    // Create sample applications with both local and external references
     await db.insert(applications).values([
       {
-        volunteerId: 1, // First volunteer
-        eventId: 1, // Park cleanup
+        volunteerId: 1,
+        eventId: sampleEvents[0]?.id, // Local event reference
+        externalEventId: "ext-event-001",
+        eventTitle: "Sprzątanie Parku Jordana",
+        companyName: "Fundacja Kraków",
         message:
           "Bardzo chętnie pomogę w sprzątaniu parku. Mam doświadczenie w akcjach ekologicznych.",
         status: "pending",
       },
       {
-        volunteerId: 2, // Second volunteer
-        eventId: 1, // Park cleanup
+        volunteerId: 2,
+        eventId: sampleEvents[0]?.id,
+        externalEventId: "ext-event-001",
+        eventTitle: "Sprzątanie Parku Jordana",
+        companyName: "Fundacja Kraków",
         message:
           "Mieszkam blisko parku i zależy mi na jego czystości. Mogę pomóc w weekendy.",
         status: "accepted",
       },
       {
-        volunteerId: 1, // First volunteer
-        eventId: 2, // Computer workshops
+        volunteerId: 1,
+        eventId: sampleEvents[1]?.id,
+        externalEventId: "ext-event-002",
+        eventTitle: "Warsztaty komputerowe dla seniorów",
+        companyName: "Centrum Seniora",
         message: "Pracuję w IT i chętnie pomogę seniorom z komputerami.",
         status: "accepted",
       },
       {
-        volunteerId: 3, // Third volunteer (coordinator as volunteer too)
-        eventId: 3, // Environmental campaign
+        volunteerId: 3,
+        eventId: sampleEvents[2]?.id,
+        externalEventId: "ext-event-003",
+        eventTitle: "Kampania edukacyjna o segregacji śmieci",
+        companyName: "EkoKraków",
         message:
           "Jako koordynator chcę też aktywnie uczestniczyć w kampaniach ekologicznych.",
-        status: "pending",
-      },
-      {
-        volunteerId: 2, // Second volunteer
-        eventId: 4, // Festival assistance
-        message: "Uwielbiam festiwale i chętnie pomogę w organizacji.",
-        status: "rejected",
-      },
-      {
-        volunteerId: 1, // First volunteer
-        eventId: 5, // Online activism
-        message:
-          "Mam doświadczenie w mediach społecznościowych i kampaniach online.",
-        status: "accepted",
-      },
-      {
-        volunteerId: 3, // Third volunteer
-        eventId: 6, // Community meetings
-        message:
-          "Interesuję się polityką lokalną i chętnie pomogę w organizacji spotkań.",
         status: "pending",
       },
     ]);
