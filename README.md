@@ -7,6 +7,10 @@ App was created at <a href="https://hackyeah.pl/" target="_blank">Hackyeah</a> 2
 - Topic: Digital Volunteer Center by Miasto Kraków
 - Timeframe: 04-05.10.2025, 24 hours
 
+# AI Backend link
+
+https://github.com/tobi303x/HAckYeah-Ai-Backend
+
 # Tech Stack
 
 <img alt="NEXT.JS" src="https://img.shields.io/badge/Next.js-000000.svg?style=for-the-badge&logo=nextdotjs&logoColor=white"/>
