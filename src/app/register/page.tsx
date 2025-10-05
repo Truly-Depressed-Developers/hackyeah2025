@@ -85,7 +85,6 @@ export default function CompleteProfilePage() {
   };
 
   function onSubmit(data: ProfileFormData) {
-    console.log(data);
     completeProfile.mutate(data);
   }
 

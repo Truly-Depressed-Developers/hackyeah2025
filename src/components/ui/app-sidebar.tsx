@@ -26,7 +26,7 @@ import { api } from "@/trpc/react";
 const items = [
   {
     title: "Znajdź inicjatywę",
-    url: "#",
+    url: "/find-event",
     icon: Search,
   },
   {

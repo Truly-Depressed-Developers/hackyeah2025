@@ -8,7 +8,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Accessibility, ChevronDown, LogOut } from "lucide-react";
+import {
+  Accessibility,
+  ChevronDown,
+  LogOut,
+  PersonStanding,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -46,7 +51,7 @@ export default function AuthFormHeader() {
           aria-label="Opcje dostępności"
           className="h-9 w-9"
         >
-          <Accessibility className="size-4" />
+          <PersonStanding className="size-4" />
         </Button>
         {session && (
           <Button variant="outline" size="icon" asChild className="h-9 w-9">
