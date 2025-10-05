@@ -143,13 +143,17 @@ export const externalAPIRouter = createTRPCRouter({
           );
         }
 
-        const response = await axios.post(env.EXTERNAL_API_URL, payload, {
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": env.EXTERNAL_API_KEY,
+        const response = await axios.post(
+          env.EXTERNAL_API_URL + "/add_opportunity",
+          payload,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "x-api-key": env.EXTERNAL_API_KEY,
+            },
+            timeout: 10000,
           },
-          timeout: 10000,
-        });
+        );
 
         console.log("External API response:", response.data);
 

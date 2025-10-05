@@ -30,6 +30,7 @@ import {
 import WorkloadInputComponent from "./WorkloadInputComponent";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type Props = {
   className?: string;
@@ -47,6 +48,8 @@ export function VolunteerRequestForm({ className }: Props) {
   });
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const router = useRouter();
 
   const form = useForm<VolunteerFormRequestSchema>({
     resolver: zodResolver(volunteerRequestSchema),
@@ -72,6 +75,7 @@ export function VolunteerRequestForm({ className }: Props) {
         toast.success(
           data.message || "Ogłoszenie zostało pomyślnie utworzone!",
         );
+        router.push("/dashboard");
       } else {
         toast.warning(data.message || "Ogłoszenie zostało zapisane lokalnie");
       }
