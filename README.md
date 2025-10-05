@@ -23,6 +23,8 @@ App was created at <a href="https://hackyeah.pl/" target="_blank">Hackyeah</a> 2
 - [@Sosek1](https://github.com/Sosek1)
 - [@MSiorr](https://github.com/MSiorr)
 - [@CALLmeDOMIN](https://github.com/CALLmeDOMIN)
+- [@Zboro02](https://github.com/Zboro02)
+- [@tobi303x](https://github.com/tobi303x)
 
 # License
 
