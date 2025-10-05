@@ -31,7 +31,7 @@ const items = [
   },
   {
     title: "Moje inicjatywy",
-    url: "#",
+    url: "/dashboard",
     icon: Notebook,
   },
   {
