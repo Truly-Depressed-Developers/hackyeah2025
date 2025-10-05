@@ -8,6 +8,7 @@ import {
   Search,
   User,
   MessageSquare,
+  FileBadge,
 } from "lucide-react";
 
 import {
@@ -25,41 +26,20 @@ import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 import { api } from "@/trpc/react";
 
 const items = [
-  {
-    title: "Znajdź inicjatywę",
-    url: "/find-event",
-    icon: Search,
-  },
-  {
-    title: "Moje inicjatywy",
-    url: "/dashboard",
-    icon: Notebook,
-  },
-  {
-    title: "Mapa inicjatyw",
-    url: "#",
-    icon: MapIcon,
-  },
-  {
-    title: "Kalendarz",
-    url: "/calendar",
-    icon: Calendar,
-  },
-  {
-    title: "Czat",
-    url: "/chat",
-    icon: MessageSquare,
-  },
+  { title: "Znajdź inicjatywę", url: "/find-event", icon: Search },
+  { title: "Moje inicjatywy", url: "/dashboard", icon: Notebook },
+  { title: "Mapa inicjatyw", url: "/map", icon: MapIcon },
+  { title: "Kalendarz", url: "/calendar", icon: Calendar },
+  { title: "Czat", url: "/chat", icon: MessageSquare },
+  { title: "Certyfikat", url: "/certificate", icon: FileBadge },
 ];
 
 export default function AppSidebar() {
   const { data: userProfile, isLoading } = api.profile.getCurrent.useQuery();
-
   const { state } = useSidebar();
 
   const getInitials = () => {
     if (!userProfile) return "U";
-
     if (userProfile.profileData) {
       if (
         userProfile.role === "wolontariusz" ||
@@ -79,7 +59,6 @@ export default function AppSidebar() {
         }
       }
     }
-
     if (userProfile.name) {
       const nameParts = userProfile.name.split(" ");
       if (nameParts.length >= 2) {
@@ -87,9 +66,21 @@ export default function AppSidebar() {
       }
       return userProfile.name.slice(0, 2).toUpperCase();
     }
-
     return "U";
   };
+
+  // Filtruj elementy menu w zależności od roli użytkownika
+  const filteredItems = items.filter((item) => {
+    if (!userProfile) return true;
+
+    if (userProfile.role === "organizator") {
+      return item.title !== "Znajdź inicjatywę";
+    }
+    if (userProfile.role === "wolontariusz") {
+      return item.title !== "Moje inicjatywy" && item.title !== "Certyfikat";
+    }
+    return true;
+  });
 
   return (
     <Sidebar collapsible="icon">
@@ -100,9 +91,10 @@ export default function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
+
       <SidebarContent className="p-2">
         <SidebarMenu>
-          {items.map((item) => (
+          {filteredItems.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild>
                 <a href={item.url}>
@@ -117,6 +109,7 @@ export default function AppSidebar() {
           ))}
         </SidebarMenu>
       </SidebarContent>
+
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
