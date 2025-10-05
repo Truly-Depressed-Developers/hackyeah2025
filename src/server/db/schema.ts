@@ -224,7 +224,6 @@ export const applications = createTable("application", (d) => ({
     .integer()
     .notNull()
     .references(() => volunteers.id),
-  eventId: d.integer().references(() => events.id),
   externalEventId: d.varchar({ length: 255 }).notNull(),
   eventTitle: d.varchar({ length: 255 }),
   companyName: d.varchar({ length: 255 }),
@@ -244,9 +243,5 @@ export const applicationsRelations = relations(applications, ({ one }) => ({
   volunteer: one(volunteers, {
     fields: [applications.volunteerId],
     references: [volunteers.id],
-  }),
-  event: one(events, {
-    fields: [applications.eventId],
-    references: [events.id],
   }),
 }));

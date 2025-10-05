@@ -11,7 +11,6 @@ import { toast } from "sonner";
 export type ApplicationInfo = {
   id: number;
   volunteerId: number;
-  eventId: number | null;
   externalEventId: string;
   eventTitle: string | null;
   companyName: string | null;
@@ -41,16 +40,17 @@ export const columns: ColumnDef<ApplicationInfo>[] = [
     ),
   },
   {
-    accessorKey: "eventName", // Add eventName as accessor
+    accessorKey: "eventTitle", // Add eventTitle as accessor
     id: "event",
     header: "Wydarzenie",
     cell: ({ row }) => {
-      const localEventName = row.getValue("eventName");
+      const localEventTitle = row.getValue("eventTitle");
+      console.log(localEventTitle);
       const storedTitle = row.original.eventTitle;
       const syncStatus = row.original.eventSyncStatus;
 
       const eventName =
-        (typeof localEventName === "string" ? localEventName : null) ??
+        (typeof localEventTitle === "string" ? localEventTitle : null) ??
         storedTitle ??
         "Nieznane wydarzenie";
 

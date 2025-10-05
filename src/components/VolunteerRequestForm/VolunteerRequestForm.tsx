@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { UploadButton } from "@/lib/uploadthing";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, Router, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -30,6 +30,7 @@ import {
 import WorkloadInputComponent from "./WorkloadInputComponent";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type Props = {
   className?: string;
@@ -48,12 +49,13 @@ export function VolunteerRequestForm({ className }: Props) {
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const router = useRouter();
+
   const form = useForm<VolunteerFormRequestSchema>({
     resolver: zodResolver(volunteerRequestSchema),
     defaultValues: {
       name: "",
       description: "",
-      organizerName: "",
       tags: [],
       thumbnail: undefined,
       workload: [],
@@ -72,6 +74,8 @@ export function VolunteerRequestForm({ className }: Props) {
         toast.success(
           data.message || "Ogłoszenie zostało pomyślnie utworzone!",
         );
+
+        router.push("/dashboard");
       } else {
         toast.warning(data.message || "Ogłoszenie zostało zapisane lokalnie");
       }
@@ -356,7 +360,7 @@ export function VolunteerRequestForm({ className }: Props) {
           )}
         />
 
-        <FormField
+        {/* <FormField
           control={form.control}
           name="organizerName"
           render={({ field }) => (
@@ -368,7 +372,7 @@ export function VolunteerRequestForm({ className }: Props) {
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
 
         <div className="flex justify-end">
           <Button

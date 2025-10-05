@@ -3,11 +3,20 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { User, Calendar, Briefcase, Tag as TagIcon } from "lucide-react";
+import {
+  User,
+  Calendar,
+  Briefcase,
+  Tag as TagIcon,
+  ReceiptPoundSterling,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { format } from "date-fns";
 import type { ApiEvent } from "@/types/event";
+import { api } from "@/trpc/react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type EventTileProps = {
   data: ApiEvent;
@@ -35,8 +44,6 @@ const InfoLine = ({
 };
 
 export default function EventTile({ data }: EventTileProps) {
-  // if (!data.thumbnail) data.thumbnail = "/cracow.jpg";
-
   const formattedStartDate = data.metadata.Data_rozpoczecia
     ? format(data.metadata.Data_rozpoczecia, "dd.MM.yyyy")
     : "Brak daty";
@@ -46,6 +53,25 @@ export default function EventTile({ data }: EventTileProps) {
   const duration = formattedEndDate
     ? `${formattedStartDate} - ${formattedEndDate}`
     : formattedStartDate;
+
+  const router = useRouter();
+
+  const signInForEvent = api.event.signUpForEvent.useMutation({
+    onSuccess: () => {
+      router.push("/dashboard");
+      toast.success("Pomyślnie zapisano na wydarzenie");
+      router.refresh();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Nie udało się zapisać na wydarzenie");
+    },
+  });
+
+  const handleParticipateIn = (id: string) => {
+    console.log(`User wants to participate in event with ID: ${id}`);
+
+    signInForEvent.mutate({ eventId: id });
+  };
 
   return (
     <Card className="flex h-full w-full flex-col overflow-hidden rounded-lg border p-4 shadow-sm">
@@ -97,8 +123,11 @@ export default function EventTile({ data }: EventTileProps) {
         )}
 
         <div className="mt-auto border-t pt-4">
-          <Button asChild className="w-full">
-            <Link href={`/events/${data.id}`}>Zgłoś się</Link>
+          <Button
+            className="w-full"
+            onClick={() => handleParticipateIn(data.id)}
+          >
+            Zgłoś się
           </Button>
         </div>
       </CardContent>

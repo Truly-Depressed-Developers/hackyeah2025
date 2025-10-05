@@ -1,20 +1,77 @@
 "use client";
 
-import { columns } from "@/components/list/columns";
+import type { EventFiltersState } from "@/components/events/EventsFilters";
+import { columns, type ApplicationInfo } from "@/components/list/columns";
 import DataTable from "@/components/list/data-table";
 import Loading from "@/components/Loading";
 import { Button } from "@/components/ui/button";
+import { getApiEvents } from "@/services/eventApi";
+import type { ApiEvent } from "@/types/event";
 import { api } from "@/trpc/react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function DashboardPage() {
   const {
     data: applications,
     isLoading,
     error,
-  } = api.applications.getForCompany.useQuery({});
+  } = api.applications.getForCompany.useQuery();
 
-  if (isLoading) {
+  console.log("Apps:", applications);
+
+  const [filters, setFilters] = useState<EventFiltersState>({
+    workload: [],
+    form: [],
+    location: [],
+    dateFrom: undefined,
+    dateTo: undefined,
+  });
+  const [loading, setLoading] = useState<boolean>(false);
+  const [applicationInfos, setApplicationInfos] = useState<ApplicationInfo[]>(
+    [],
+  );
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const apiEvents = await getApiEvents(filters, "");
+
+      console.log(apiEvents, applications);
+
+      if (applications && apiEvents) {
+        // Tworzymy mapę eventów po ID dla szybkiego dostępu
+        const eventMap = new Map(apiEvents.map((e) => [e.id, e]));
+
+        // Mapujemy aplikacje na ApplicationInfo
+        const enrichedApplications: ApplicationInfo[] = applications.map(
+          (app) => {
+            const event = eventMap.get(app.externalEventId);
+            return {
+              ...app,
+              volunteerName: (app.volunteerName as string) ?? null,
+              eventName: event?.metadata.Nazwa ?? app.eventTitle ?? null,
+              eventTitle: event?.metadata.Nazwa ?? app.eventTitle ?? null,
+              eventDate: new Date(event?.metadata.Data_rozpoczecia!) ?? null,
+              eventSyncStatus: event ? "synced" : "error",
+            };
+          },
+        );
+
+        console.log(enrichedApplications);
+
+        setApplicationInfos(enrichedApplications);
+      } else {
+        setApplicationInfos([]);
+      }
+
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [filters, applications]);
+
+  if (isLoading || loading) {
     return <Loading />;
   }
 
@@ -47,7 +104,7 @@ export default function DashboardPage() {
         </p>
       </div>
       <div className="w-full">
-        <DataTable columns={columns} data={applications ?? []} />
+        <DataTable columns={columns} data={applicationInfos ?? []} />
       </div>
     </div>
   );

@@ -18,6 +18,21 @@ const config = {
         hostname: "utfs.io",
         pathname: "/f/*",
       },
+      {
+        protocol: "https",
+        hostname: "example.com",
+        pathname: "/images/*",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        pathname: "/*",
+      },
+      {
+        protocol: "https",
+        hostname: "oh1cjz7kar.ufs.sh",
+        pathname: "/f/*",
+      },
     ],
   },
 };

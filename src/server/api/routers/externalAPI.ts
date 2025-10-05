@@ -7,7 +7,6 @@ import { z } from "zod";
 const createOpportunitySchema = z.object({
   name: z.string().min(2, "Nazwa jest wymagana"),
   description: z.string().min(10, "Opis jest wymagany"),
-  organizerName: z.string().min(2, "Nazwa organizatora jest wymagana"),
   tags: z.array(z.string()),
   thumbnail: z.string().optional(),
   latitude: z.number().optional(),
@@ -70,7 +69,6 @@ export const externalAPIRouter = createTRPCRouter({
           : null,
         workload: input.workload.map((w) => workloadMap[w] ?? w),
         form: input.form,
-        organizer: input.organizerName,
       };
 
       console.log(
@@ -88,6 +86,14 @@ export const externalAPIRouter = createTRPCRouter({
   createOpportunity: protectedProcedure
     .input(createOpportunitySchema)
     .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      const companyName = await ctx.db.query.companies
+        .findFirst({
+          where: (app, { eq }) => eq(app.userId, userId),
+        })
+        .then((company) => company?.companyName!);
+
       try {
         const workloadMap: Record<string, string> = {
           Mini: "Mini - Zaangażowanie do 1 godziny tygodniowo",
@@ -128,7 +134,7 @@ export const externalAPIRouter = createTRPCRouter({
             : null,
           workload: input.workload.map((w) => workloadMap[w] ?? w),
           form: input.form,
-          organizer: input.organizerName,
+          organizer: companyName,
         };
 
         console.log("Sending payload to external API:", payload);
@@ -143,21 +149,25 @@ export const externalAPIRouter = createTRPCRouter({
           );
         }
 
-        const response = await axios.post(env.EXTERNAL_API_URL, payload, {
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": env.EXTERNAL_API_KEY,
+        const response = await axios.post(
+          `${env.EXTERNAL_API_URL}/add_opportunity`,
+          payload,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "x-api-key": env.EXTERNAL_API_KEY,
+            },
+            timeout: 10000,
           },
-          timeout: 10000,
-        });
+        );
 
         console.log("External API response:", response.data);
 
         const externalId =
           response.data &&
           typeof response.data === "object" &&
-          "id" in response.data
-            ? String((response.data as { id: unknown }).id)
+          "record_id" in response.data
+            ? String((response.data as { record_id: unknown }).record_id)
             : `ext-${Date.now()}`;
 
         const localEvent = await ctx.db
@@ -165,7 +175,7 @@ export const externalAPIRouter = createTRPCRouter({
           .values({
             name: input.name,
             description: input.description,
-            organizerName: input.organizerName,
+            organizerName: companyName,
             tags: input.tags,
             thumbnail: input.thumbnail ?? null,
             latitude: input.latitude ?? null,
@@ -198,7 +208,7 @@ export const externalAPIRouter = createTRPCRouter({
             .values({
               name: input.name,
               description: input.description,
-              organizerName: input.organizerName,
+              organizerName: companyName,
               tags: input.tags,
               thumbnail: input.thumbnail ?? null,
               latitude: input.latitude ?? null,
