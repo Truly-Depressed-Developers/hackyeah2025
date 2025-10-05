@@ -28,6 +28,8 @@ import {
   type VolunteerFormRequestSchema,
 } from "./VolunteerRequestForm.utils";
 import WorkloadInputComponent from "./WorkloadInputComponent";
+import { api } from "@/trpc/react";
+import { useRouter } from "next/navigation";
 
 type Props = {
   className?: string;
@@ -39,12 +41,25 @@ type Marker = {
 };
 
 export function VolunteerRequestForm({ className }: Props) {
+  const router = useRouter();
   const [markerData, setMarkerData] = useState<Marker>({
     long: undefined,
     lat: undefined,
   });
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const createVolunteerRequest = api.volunteerRequest.create.useMutation({
+    onSuccess: (data) => {
+      console.log("Volunteer request created:", data);
+      router.push("/");
+      // You could also show a success toast here
+    },
+    onError: (error) => {
+      console.error("Error creating volunteer request:", error);
+      // You could show an error toast here
+    },
+  });
 
   const form = useForm<VolunteerFormRequestSchema>({
     resolver: zodResolver(volunteerRequestSchema),
@@ -56,11 +71,15 @@ export function VolunteerRequestForm({ className }: Props) {
       thumbnail: "",
       workload: [],
       form: [],
+      latitude: undefined,
+      longitude: undefined,
+      startDate: undefined,
+      endDate: undefined,
     },
   });
 
   function onSubmit(values: VolunteerFormRequestSchema) {
-    console.log(values);
+    createVolunteerRequest.mutate(values);
   }
 
   const handleDeleteImage = async (
@@ -205,7 +224,7 @@ export function VolunteerRequestForm({ className }: Props) {
                       }}
                       onClientUploadComplete={(res) => {
                         if (res?.[0]) {
-                          field.onChange(res[0].ufsUrl);
+                          field.onChange(res[0].url);
                           // showToast({ title: "Plik został przesłany!" });
                         }
                         setIsUploading(false);
@@ -363,8 +382,18 @@ export function VolunteerRequestForm({ className }: Props) {
         />
 
         <div className="flex justify-end">
-          <Button type="submit" disabled={isUploading}>
-            Stwórz
+          <Button
+            type="submit"
+            disabled={isUploading || createVolunteerRequest.isPending}
+          >
+            {createVolunteerRequest.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Tworzenie...
+              </>
+            ) : (
+              "Stwórz"
+            )}
           </Button>
         </div>
       </form>

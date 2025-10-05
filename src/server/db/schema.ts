@@ -1,6 +1,6 @@
 import { relations, sql } from "drizzle-orm";
 import { index, pgTableCreator, primaryKey } from "drizzle-orm/pg-core";
-import { type AdapterAccount } from "next-auth/adapters";
+import type { AdapterAccount } from "next-auth/adapters";
 import type { UserRole } from "./types";
 
 /**
@@ -63,6 +63,14 @@ export const volunteers = createTable("volunteer", (d) => ({
   isOfAge: d.boolean("is_of_age"),
 }));
 
+export const volunteersRelations = relations(volunteers, ({ one, many }) => ({
+  user: one(users, {
+    fields: [volunteers.userId],
+    references: [users.id],
+  }),
+  applications: many(applications),
+}));
+
 export const companies = createTable("company", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
   userId: d
@@ -74,6 +82,13 @@ export const companies = createTable("company", (d) => ({
   description: d.text(),
 }));
 
+export const companiesRelations = relations(companies, ({ one }) => ({
+  user: one(users, {
+    fields: [companies.userId],
+    references: [users.id],
+  }),
+}));
+
 export const coordinators = createTable("coordinator", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
   userId: d
@@ -83,6 +98,13 @@ export const coordinators = createTable("coordinator", (d) => ({
   firstName: d.varchar({ length: 255 }),
   lastName: d.varchar({ length: 255 }),
   school: d.varchar({ length: 255 }),
+}));
+
+export const coordinatorsRelations = relations(coordinators, ({ one }) => ({
+  user: one(users, {
+    fields: [coordinators.userId],
+    references: [users.id],
+  }),
 }));
 
 export const accounts = createTable(

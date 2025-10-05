@@ -13,9 +13,11 @@ export default async function GeneralLayout({
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
       <AppSidebar />
-      <main>
-        <SidebarTrigger />
-        {children}
+      <main className="w-full flex-1">
+        <div className="w-full">
+          <SidebarTrigger />
+          <div className="w-full">{children}</div>
+        </div>
       </main>
     </SidebarProvider>
   );
