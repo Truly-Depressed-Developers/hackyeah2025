@@ -7,6 +7,7 @@ import {
   Notebook,
   Search,
   User,
+  MessageSquare,
 } from "lucide-react";
 
 import {
@@ -43,6 +44,11 @@ const items = [
     title: "Kalendarz",
     url: "/calendar",
     icon: Calendar,
+  },
+  {
+    title: "Czat",
+    url: "/chat",
+    icon: MessageSquare,
   },
 ];
 
