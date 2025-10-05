@@ -29,7 +29,7 @@ import {
 } from "./VolunteerRequestForm.utils";
 import WorkloadInputComponent from "./WorkloadInputComponent";
 import { api } from "@/trpc/react";
-import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type Props = {
   className?: string;
@@ -41,27 +41,12 @@ type Marker = {
 };
 
 export function VolunteerRequestForm({ className }: Props) {
-  const router = useRouter();
   const [markerData, setMarkerData] = useState<Marker>({
     long: undefined,
     lat: undefined,
   });
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  const createOpportunity = api.externalAPI.createOpportunity.useMutation({
-    onSuccess: (data) => {
-      console.log("Opportunity created successfully:", data);
-      form.reset();
-      setMarkerData({ long: undefined, lat: undefined });
-      alert(data.message);
-      router.push("/");
-    },
-    onError: (error) => {
-      console.error("Error creating opportunity:", error);
-      alert(`Błąd podczas tworzenia ogłoszenia: ${error.message}`);
-    },
-  });
 
   const form = useForm<VolunteerFormRequestSchema>({
     resolver: zodResolver(volunteerRequestSchema),
@@ -80,6 +65,22 @@ export function VolunteerRequestForm({ className }: Props) {
     },
   });
 
+  const createOpportunity = api.externalAPI.createOpportunity.useMutation({
+    onSuccess: (data) => {
+      form.reset();
+      if (data.success) {
+        toast.success(
+          data.message || "Ogłoszenie zostało pomyślnie utworzone!",
+        );
+      } else {
+        toast.warning(data.message || "Ogłoszenie zostało zapisane lokalnie");
+      }
+    },
+    onError: (error) => {
+      toast.error(`Błąd podczas tworzenia ogłoszenia: ${error.message}`);
+    },
+  });
+
   function onSubmit(values: VolunteerFormRequestSchema) {
     createOpportunity.mutate(values);
   }
@@ -88,9 +89,9 @@ export function VolunteerRequestForm({ className }: Props) {
     setIsDeleting(true);
     try {
       onChange("");
-      // showToast({ title: "Obraz został usunięty" });
+      toast.success("Obraz został usunięty");
     } catch {
-      // showToast({ title: "Błąd podczas usuwania obrazu" });
+      toast.error("Błąd podczas usuwania obrazu");
     } finally {
       setIsDeleting(false);
     }
@@ -215,16 +216,13 @@ export function VolunteerRequestForm({ className }: Props) {
                       }}
                       onClientUploadComplete={(res) => {
                         if (res?.[0]) {
-                          field.onChange(res[0].url);
-                          // showToast({ title: "Plik został przesłany!" });
+                          field.onChange(res[0].ufsUrl);
+                          toast.success("Plik został przesłany!");
                         }
                         setIsUploading(false);
                       }}
                       onUploadError={(_error: Error) => {
-                        // showToast({
-                        //   title: "Błąd przesyłania",
-                        //   description: _error.message,
-                        // });
+                        toast.error("Błąd przesyłania");
                         setIsUploading(false);
                       }}
                     />

@@ -6,6 +6,7 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { api } from "@/trpc/react";
+import { toast } from "sonner";
 
 export type ApplicationInfo = {
   id: number;
@@ -19,7 +20,6 @@ export type ApplicationInfo = {
   createdAt: Date;
   volunteerName: string | null;
   volunteerEmail: string | null;
-  // From JOIN with events table
   eventName: string | null;
   eventDate: Date | null;
   eventSyncStatus: "pending" | "synced" | "error" | null;
@@ -109,11 +109,11 @@ export const columns: ColumnDef<ApplicationInfo>[] = [
 
       const updateStatus = api.applications.updateStatus.useMutation({
         onSuccess: () => {
-          console.log("Status aplikacji został zaktualizowany");
+          toast.success("Status aplikacji został zaktualizowany");
           void utils.applications.getForCompany.invalidate();
         },
-        onError: (error) => {
-          console.error("Błąd przy aktualizacji statusu:", error.message);
+        onError: () => {
+          toast.error("Błąd przy aktualizacji statusu");
         },
       });
 
