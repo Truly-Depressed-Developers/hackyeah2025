@@ -1,9 +1,9 @@
 "use client";
 
 import Map from "@/components/Map/Map";
-import { useEffect, useState } from "react";
 import { getApiEvents } from "@/services/eventApi";
 import type { ApiEvent } from "@/types/event";
+import { useEffect, useState } from "react";
 
 export default function MapView() {
   const [events, setEvents] = useState<ApiEvent[]>([]);

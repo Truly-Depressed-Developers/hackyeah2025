@@ -6,7 +6,6 @@ import {
   type MapRef,
 } from "react-map-gl/maplibre";
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
-// @ts-expect-error no type for css
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useRef } from "react";
 import Marker from "./Marker";

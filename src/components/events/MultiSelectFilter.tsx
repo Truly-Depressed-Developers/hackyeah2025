@@ -10,8 +10,7 @@ import {
   TagsTrigger,
   TagsValue,
 } from "@/components/ui/tags";
-import { Check, ChevronDown } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Check } from "lucide-react";
 
 const MAX_TAGS = 2;
 

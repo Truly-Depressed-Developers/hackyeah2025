@@ -1,24 +1,24 @@
 "use client";
 
-import { useState, useEffect, useRef, type KeyboardEvent } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import EventsFilters, { type EventFiltersState } from "./EventsFilters";
-import EventTile from "./TileEvent";
 import { Button } from "@/components/ui/button";
 import {
   InputGroup,
-  InputGroupInput,
   InputGroupAddon,
   InputGroupButton,
+  InputGroupInput,
 } from "@/components/ui/input-group";
+import { getApiEvents } from "@/services/eventApi";
+import type { ApiEvent } from "@/types/event";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRightFromLine,
   SearchIcon,
   SlidersHorizontal,
 } from "lucide-react";
-import { getApiEvents } from "@/services/eventApi";
-import type { ApiEvent } from "@/types/event";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import Loading from "../Loading";
+import EventsFilters, { type EventFiltersState } from "./EventsFilters";
+import EventTile from "./TileEvent";
 
 const EMPTY_FILTERS: EventFiltersState = {
   workload: [],

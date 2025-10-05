@@ -1,6 +1,6 @@
+import { env } from "@/env";
 import { NextResponse } from "next/server";
 import { StreamChat } from "stream-chat";
-import { env } from "@/env";
 
 // GET lub POST — zależnie jak chcesz wysyłać żądanie z frontu
 export async function POST(request: Request) {

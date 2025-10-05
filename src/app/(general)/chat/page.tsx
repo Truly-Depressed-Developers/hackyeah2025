@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
-import type { User, Channel as StreamChannel } from "stream-chat";
+import { useEffect, useState } from "react";
+import type { Channel as StreamChannel, User } from "stream-chat";
 import {
-  useCreateChatClient,
-  Chat,
   Channel,
   ChannelHeader,
+  Chat,
   MessageInput,
   MessageList,
   Thread,
+  useCreateChatClient,
   Window,
 } from "stream-chat-react";
 import "stream-chat-react/dist/css/v2/index.css";
@@ -77,9 +77,9 @@ function ChatProvider({ user, token }: { user: User; token: string | null }) {
     if (!client) return;
 
     const channel = client.channel("messaging", "custom_channel_id", {
-      image:
-        "https://www.google.com/url?sa=i&url=https%3A%2F%2Fkrakow.pl%2Fnasze_miasto%2F15182%2Cartykul%2Curzad.html&psig=AOvVaw1mwq-ZdjykLkHyT5o2c8_t&ust=1759723853552000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCKC6r6uYjJADFQAAAAAdAAAAABAL",
-      name: "Młody Kraków",
+      // image:
+      //   "https://www.google.com/url?sa=i&url=https%3A%2F%2Fkrakow.pl%2Fnasze_miasto%2F15182%2Cartykul%2Curzad.html&psig=AOvVaw1mwq-ZdjykLkHyT5o2c8_t&ust=1759723853552000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCKC6r6uYjJADFQAAAAAdAAAAABAL",
+      // name: "Młody Kraków",
       members: [user.id],
     });
 

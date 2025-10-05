@@ -1,47 +1,21 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
-import { api } from "@/trpc/react";
+import { profileSchema } from "@/app/schemas/schema";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { VolunteerForm } from "../../components/register/VolunteerForm";
-import { OrganizationForm } from "../../components/register/OrganizationForm";
-import { CoordinatorForm } from "../../components/register/CoordinatorForm";
-import HalfImageScreen from "../../components/layout/HalfImageScreen";
+import { api } from "@/trpc/react";
 import AuthFormHeader from "../../components/layout/AuthFormHeader";
-
-const volunteerSchema = z.object({
-  role: z.literal("wolontariusz"),
-  firstName: z.string().min(2, "Imię jest wymagane"),
-  lastName: z.string().min(2, "Nazwisko jest wymagane"),
-  isOfAge: z.boolean().optional(),
-});
-
-const companySchema = z.object({
-  role: z.literal("organizator"),
-  companyName: z.string().min(2, "Nazwa firmy jest wymagana"),
-  location: z.string().min(3, "Lokalizacja jest wymagana"),
-  description: z.string().optional(),
-});
-
-const coordinatorSchema = z.object({
-  role: z.literal("koordynator"),
-  firstName: z.string().min(2, "Imię jest wymagane"),
-  lastName: z.string().min(2, "Nazwisko jest wymagane"),
-  school: z.string().min(2, "Nazwa szkoły jest wymagana"),
-});
-
-export const profileSchema = z.discriminatedUnion("role", [
-  volunteerSchema,
-  companySchema,
-  coordinatorSchema,
-]);
+import HalfImageScreen from "../../components/layout/HalfImageScreen";
+import { CoordinatorForm } from "../../components/register/CoordinatorForm";
+import { OrganizationForm } from "../../components/register/OrganizationForm";
+import { VolunteerForm } from "../../components/register/VolunteerForm";
 
 const allFieldsDefaultValues = {
   role: "wolontariusz" as const,
@@ -81,11 +55,13 @@ export default function CompleteProfilePage() {
   const handleTabChange = (value: string) => {
     form.setValue("role", value as Role, { shouldValidate: true });
     form.clearErrors();
-    form.reset({ ...allFieldsDefaultValues, role: value as Role });
+    form.reset({ role: value as Role } as ProfileFormData);
   };
 
   function onSubmit(data: ProfileFormData) {
-    completeProfile.mutate(data);
+    completeProfile.mutate(
+      data as Parameters<typeof completeProfile.mutate>[0],
+    );
   }
 
   return (

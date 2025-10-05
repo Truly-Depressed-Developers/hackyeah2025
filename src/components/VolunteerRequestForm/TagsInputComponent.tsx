@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { defaultTags } from "./VolunteerRequestForm.utils";
 import {
   Tags,
   TagsContent,
@@ -13,6 +11,8 @@ import {
   TagsTrigger,
   TagsValue,
 } from "@/components/ui/tags";
+import { useState } from "react";
+import { defaultTags } from "./VolunteerRequestForm.utils";
 
 type Props = {
   value?: string[];

@@ -8,12 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Accessibility,
-  ChevronDown,
-  LogOut,
-  PersonStanding,
-} from "lucide-react";
+import { ChevronDown, LogOut, PersonStanding } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";

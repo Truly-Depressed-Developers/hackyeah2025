@@ -3,6 +3,7 @@
 import type { Control } from "react-hook-form";
 import type { z } from "zod";
 
+import { profileSchema } from "@/app/schemas/schema";
 import {
   FormControl,
   FormField,
@@ -11,8 +12,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import type { profileSchema } from "@/app/register/page";
 import { Textarea } from "@/components/ui/textarea";
 
 type ProfileFormData = z.infer<typeof profileSchema>;

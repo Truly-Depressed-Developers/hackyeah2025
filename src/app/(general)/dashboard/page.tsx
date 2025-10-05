@@ -6,7 +6,6 @@ import DataTable from "@/components/list/data-table";
 import Loading from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { getApiEvents } from "@/services/eventApi";
-import type { ApiEvent } from "@/types/event";
 import { api } from "@/trpc/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";

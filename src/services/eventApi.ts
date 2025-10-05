@@ -1,7 +1,7 @@
-import axios from "axios";
-import { format } from "date-fns";
 import type { EventFiltersState } from "@/components/events/EventsFilters";
 import type { ApiEvent, ApiResponse } from "@/types/event";
+import axios from "axios";
+import { format } from "date-fns";
 
 const apiClient = axios.create({
   baseURL: "/api/proxy",
