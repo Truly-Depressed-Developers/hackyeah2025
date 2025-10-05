@@ -1,5 +1,3 @@
-# MeetDrasil
-
 ## Motivation
 
 App was created at <a href="https://hackyeah.pl/" target="_blank">Hackyeah</a> 2025 Hackathon
