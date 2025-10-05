@@ -9,6 +9,7 @@ import {
   User,
   MessageSquare,
   FileBadge,
+  LogOut,
 } from "lucide-react";
 
 import {
@@ -24,6 +25,8 @@ import {
 import LogoSmall from "../LogoSmall";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 import { api } from "@/trpc/react";
+import { Button } from "./button";
+import Link from "next/link";
 
 const items = [
   { title: "Znajdź inicjatywę", url: "/find-event", icon: Search },
@@ -129,13 +132,25 @@ export default function AppSidebar() {
                   </>
                 )}
               </Avatar>
-              <div className="flex min-w-0 flex-1 flex-col overflow-hidden text-left">
-                <div className="truncate text-sm font-medium">
-                  {userProfile?.name}
+              <div className="flex w-full items-center justify-between overflow-hidden">
+                <div className="flex min-w-0 flex-1 flex-col overflow-hidden text-left">
+                  <div className="truncate text-sm font-medium">
+                    {userProfile?.name}
+                  </div>
+                  <div className="text-muted-foreground truncate text-xs">
+                    {userProfile?.email}
+                  </div>
                 </div>
-                <div className="text-muted-foreground truncate text-xs">
-                  {userProfile?.email}
-                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  asChild
+                  className="h-8 w-8"
+                >
+                  <Link href="/api/auth/signout">
+                    <LogOut className="size-4" />
+                  </Link>
+                </Button>
               </div>
             </div>
           </SidebarMenuItem>
