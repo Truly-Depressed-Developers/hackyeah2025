@@ -12,12 +12,24 @@ export default auth((req) => {
   const isLoginPage = nextUrl.pathname === "/login";
   const isRegisterPage = nextUrl.pathname === "/register";
 
-  if (isHomePage && isLoggedIn && !session.user.profileCompleted) {
-    return NextResponse.redirect(new URL("/register", nextUrl));
-  }
-
   if (isHomePage) {
-    return NextResponse.next();
+    if (!isLoggedIn) {
+      return NextResponse.redirect(new URL("/login", nextUrl));
+    }
+
+    if (!session.user.profileCompleted) {
+      return NextResponse.redirect(new URL("/register", nextUrl));
+    }
+
+    if (session.user.role === "wolontariusz") {
+      return NextResponse.redirect(new URL("/find-event", nextUrl));
+    } else if (session.user.role === "organizator") {
+      return NextResponse.redirect(new URL("/dashboard", nextUrl));
+    } else if (session.user.role === "koordynator") {
+      return NextResponse.redirect(new URL("/dashboard", nextUrl));
+    }
+
+    return NextResponse.redirect(new URL("/login", nextUrl));
   }
 
   if (!isLoggedIn && !isLoginPage && !isRegisterPage) {
@@ -29,7 +41,19 @@ export default auth((req) => {
   }
 
   if (isLoggedIn && isLoginPage) {
-    return NextResponse.redirect(new URL("/", nextUrl));
+    if (!session.user.profileCompleted) {
+      return NextResponse.redirect(new URL("/register", nextUrl));
+    }
+
+    if (session.user.role === "wolontariusz") {
+      return NextResponse.redirect(new URL("/find-event", nextUrl));
+    } else if (session.user.role === "organizator") {
+      return NextResponse.redirect(new URL("/dashboard", nextUrl));
+    } else if (session.user.role === "koordynator") {
+      return NextResponse.redirect(new URL("/dashboard", nextUrl));
+    }
+
+    return NextResponse.redirect(new URL("/dashboard", nextUrl));
   }
 
   if (isLoggedIn && !session.user.profileCompleted && !isRegisterPage) {

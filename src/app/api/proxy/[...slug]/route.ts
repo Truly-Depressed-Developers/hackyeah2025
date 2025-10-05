@@ -1,7 +1,8 @@
+import { env } from "@/env";
 import { NextResponse } from "next/server";
 
 const API_URL = "https://chroma-db-api-369833237955.europe-west1.run.app";
-const API_KEY = process.env.CHROMA_API_KEY;
+const API_KEY = env.EXTERNAL_API_KEY;
 
 export async function GET(request: Request) {
   const { search, pathname } = new URL(request.url);
