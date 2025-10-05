@@ -1,13 +1,18 @@
 import EventList from "@/components/events/EventList";
 import { api } from "@/trpc/server";
-import {
-  ArrowRightFromLine,
-  SearchIcon,
-  SlidersHorizontal,
-} from "lucide-react";
+import axios from "axios";
 
 export default async function FindEventPage() {
-  const events = await api.event.getEvents();
+  const secEvent = await axios
+    .get("https://chroma-db-api-369833237955.europe-west1.run.app/query", {
+      headers: {
+        "User-Agent": "insomnia/11.6.1",
+        "x-api-key": "CHUJDUPACYCKI",
+      },
+    })
+    .then((res) => res.data);
+
+  console.log("SEC EVENT", secEvent);
 
   return (
     <div className="flex w-full flex-col items-center gap-y-6 px-8">
@@ -15,7 +20,7 @@ export default async function FindEventPage() {
         Powiedz nam jakiego wolontariatu szukasz...
       </h1>
 
-      <EventList initialEvents={events} />
+      <EventList />
     </div>
   );
 }

@@ -1,12 +1,22 @@
-// src/components/events/filters.constants.ts
-
 import type { FilterOption } from "./MultiSelectFilter";
 
 export const WORKLOAD_OPTIONS: FilterOption[] = [
-  { value: "Mini", label: "Mini (do 4h/msc)" },
-  { value: "Lekkie", label: "Lekkie (4-8h/msc)" },
-  { value: "Umiarkowane", label: "Umiarkowane (8-16h/msc)" },
-  { value: "Pełne", label: "Pełne (16h+/msc)" },
+  {
+    value: "Mini - Zaangażowanie do 1 godziny tygodniowo",
+    label: "Mini (do 4h/msc)",
+  },
+  {
+    value: "Lekkie - Zaangażowanie 1-4 godziny tygodniowo",
+    label: "Lekkie (4-8h/msc)",
+  },
+  {
+    value: "Umiarkowane - Zaangażowanie 4-8 godzin tygodniowo",
+    label: "Umiarkowane (8-16h/msc)",
+  },
+  {
+    value: "Pełne - Zaangażowanie ponad 8 godzin tygodniowo",
+    label: "Pełne (16h+/msc)",
+  },
 ];
 
 export const FORM_OPTIONS: FilterOption[] = [

@@ -1,97 +1,125 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import type { Event } from "./TileEvent";
+import { useState, useEffect, useRef, type KeyboardEvent } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import EventsFilters, { type EventFiltersState } from "./EventsFilters";
 import EventTile from "./TileEvent";
 import { Button } from "@/components/ui/button";
 import {
   InputGroup,
+  InputGroupInput,
   InputGroupAddon,
   InputGroupButton,
-  InputGroupInput,
 } from "@/components/ui/input-group";
 import {
   ArrowRightFromLine,
   SearchIcon,
   SlidersHorizontal,
 } from "lucide-react";
+import { getApiEvents } from "@/services/eventApi";
+import type { ApiEvent } from "@/types/event";
+import Loading from "../Loading";
 
-type Props = {
-  initialEvents: Event[];
+const EMPTY_FILTERS: EventFiltersState = {
+  workload: [],
+  form: [],
+  location: [],
+  dateFrom: undefined,
+  dateTo: undefined,
 };
 
-export default function EventList({ initialEvents }: Props) {
-  const [showFiltes, setShowFilters] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState<EventFiltersState>({
-    workload: [],
-    form: [],
-    location: [],
-    dateFrom: undefined,
-    dateTo: undefined,
-  });
+export default function EventList() {
+  const [showFilters, setShowFilters] = useState(true);
 
-  const handleToggleFilters = () => {
-    setFilters({
-      workload: [],
-      form: [],
-      location: [],
-      dateFrom: undefined,
-      dateTo: undefined,
-    });
-    setShowFilters(!showFiltes);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState("");
+
+  const [filters, setFilters] = useState<EventFiltersState>(EMPTY_FILTERS);
+  const [events, setEvents] = useState<ApiEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const prevShowFiltersRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      const data = await getApiEvents(filters, appliedSearchTerm);
+      setEvents(data);
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, [filters, appliedSearchTerm]);
+
+  useEffect(() => {
+    const prevShowFilters = prevShowFiltersRef.current;
+    if (prevShowFilters === true && showFilters === false) {
+      setFilters(EMPTY_FILTERS);
+    }
+    prevShowFiltersRef.current = showFilters;
+  }, [showFilters]);
+
+  const handleSearch = () => {
+    setAppliedSearchTerm(searchTerm);
   };
 
-  const filteredEvents = useMemo(() => {
-    return initialEvents.filter((event) => {
-      const workloadMatch =
-        filters.workload.length === 0 ||
-        event.workload?.some((w) => filters.workload.includes(w));
-
-      const formMatch =
-        filters.form.length === 0 ||
-        event.form?.some((f) => filters.form.includes(f));
-
-      return workloadMatch && formMatch;
-    });
-  }, [initialEvents, filters]);
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleSearch();
+    }
+  };
 
   return (
     <>
       <div className="flex w-full gap-x-2">
         <InputGroup>
           <InputGroupInput
-            placeholder="Szukaj..."
+            placeholder="Szukaj po nazwie, opisie..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
           <InputGroupAddon>
             <SearchIcon />
           </InputGroupAddon>
           <InputGroupAddon align="inline-end">
-            <InputGroupButton>
+            <InputGroupButton onClick={handleSearch}>
               <ArrowRightFromLine />
             </InputGroupButton>
           </InputGroupAddon>
         </InputGroup>
-
-        <Button variant="outline" onClick={handleToggleFilters}>
-          <SlidersHorizontal />
+        <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
+          <SlidersHorizontal className="mr-2 h-4 w-4" />
           Filtry
         </Button>
       </div>
 
-      {showFiltes && <EventsFilters onFilterChange={setFilters} />}
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div
+            key="filters-panel"
+            initial={{ height: 0, opacity: 0, y: -10 }}
+            animate={{ height: "auto", opacity: 1, y: 0 }}
+            exit={{ height: 0, opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="w-full overflow-hidden"
+          >
+            <EventsFilters onFilterChange={setFilters} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {filteredEvents.length > 0 ? (
-          filteredEvents.map((event) => (
-            <EventTile key={event.id} data={event} />
-          ))
+      <div className="grid w-full grid-cols-1 gap-4 pt-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {isLoading ? (
+          <div className="col-span-full flex w-full justify-center">
+            <Loading />
+          </div>
+        ) : events.length > 0 ? (
+          events.map((event) => <EventTile key={event.id} data={event} />)
         ) : (
-          <p className="text-muted-foreground col-span-full text-center">
-            Nie znaleziono wydarzeń pasujących do filtrów.
+          <p className="text-muted-foreground col-span-full py-8 text-center">
+            Nie znaleziono wydarzeń pasujących do kryteriów.
           </p>
         )}
       </div>

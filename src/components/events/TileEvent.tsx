@@ -1,8 +1,5 @@
 "use client";
 
-import type { InferSelectModel } from "drizzle-orm";
-import { events } from "../../server/db/schema";
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,11 +7,10 @@ import { User, Calendar, Briefcase, Tag as TagIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { format } from "date-fns";
-
-export type Event = InferSelectModel<typeof events>;
+import type { ApiEvent } from "@/types/event";
 
 type EventTileProps = {
-  data: Event;
+  data: ApiEvent;
 };
 
 const InfoLine = ({
@@ -39,15 +35,13 @@ const InfoLine = ({
 };
 
 export default function EventTile({ data }: EventTileProps) {
-  console.log(data.thumbnail);
+  // if (!data.thumbnail) data.thumbnail = "/cracow.jpg";
 
-  data.thumbnail = "/cracow.jpg";
-
-  const formattedStartDate = data.startDate
-    ? format(data.startDate, "dd.MM.yyyy")
+  const formattedStartDate = data.metadata.Data_rozpoczecia
+    ? format(data.metadata.Data_rozpoczecia, "dd.MM.yyyy")
     : "Brak daty";
-  const formattedEndDate = data.endDate
-    ? format(data.endDate, "dd.MM.yyyy")
+  const formattedEndDate = data.metadata.Data_zakonczenia
+    ? format(data.metadata.Data_zakonczenia, "dd.MM.yyyy")
     : "";
   const duration = formattedEndDate
     ? `${formattedStartDate} - ${formattedEndDate}`
@@ -56,43 +50,45 @@ export default function EventTile({ data }: EventTileProps) {
   return (
     <Card className="flex h-full w-full flex-col overflow-hidden rounded-lg border p-4 shadow-sm">
       <div className="relative h-48 w-full overflow-hidden rounded-md">
-        {data.thumbnail && (
+        {data.metadata.Thumbnail && (
           <Image
-            // src={data.thumbnail}
-            src={"/cracow.jpg"}
-            alt={`Zdjęcie wydarzenia: ${data.name}`}
-            layout="fill"
-            objectFit="cover"
+            src={data.metadata.Thumbnail}
+            alt={`Zdjęcie wydarzenia: ${data.metadata.Nazwa}`}
+            fill
+            style={{ objectFit: "cover" }}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="transition-transform duration-300 group-hover:scale-105"
           />
         )}
       </div>
 
       <CardContent className="flex w-full flex-1 flex-col p-0">
-        <h3 className="text-xl leading-tight font-bold">{data.name}</h3>
+        <h3 className="text-xl leading-tight font-bold">
+          {data.metadata.Nazwa}
+        </h3>
 
         <div className="mt-4 flex flex-col gap-y-2 pb-4">
           <InfoLine
             icon={User}
             label="Organizator"
-            value={data.organizerName}
+            value={data.metadata.Nazwa_organizatora}
           />
           <InfoLine icon={Calendar} label="Czas trwania" value={duration} />
           <InfoLine
             icon={Briefcase}
             label="Nakład pracy"
-            value={data.workload?.join(", ")}
+            value={data.metadata.Wymagania_nakladu_pracy}
           />
           <InfoLine
             icon={TagIcon}
             label="Forma działalności"
-            value={data.form?.join(", ")}
+            value={data.metadata.Preferowana_forma_dzialalnosci}
           />
         </div>
 
-        {data.tags && data.tags.length > 0 && (
+        {data.metadata.Tags && data.metadata.Tags.length > 0 && (
           <div className="mb-4 flex flex-wrap gap-2">
-            {data.tags.map((tag) => (
+            {data.metadata.Tags.split(",").map((tag) => (
               <Badge key={tag} variant="secondary">
                 {tag}
               </Badge>
