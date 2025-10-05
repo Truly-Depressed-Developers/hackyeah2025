@@ -49,15 +49,17 @@ export function VolunteerRequestForm({ className }: Props) {
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const createVolunteerRequest = api.volunteerRequest.create.useMutation({
+  const createOpportunity = api.externalAPI.createOpportunity.useMutation({
     onSuccess: (data) => {
-      console.log("Volunteer request created:", data);
+      console.log("Opportunity created successfully:", data);
+      form.reset();
+      setMarkerData({ long: undefined, lat: undefined });
+      alert(data.message);
       router.push("/");
-      // You could also show a success toast here
     },
     onError: (error) => {
-      console.error("Error creating volunteer request:", error);
-      // You could show an error toast here
+      console.error("Error creating opportunity:", error);
+      alert(`Błąd podczas tworzenia ogłoszenia: ${error.message}`);
     },
   });
 
@@ -68,7 +70,7 @@ export function VolunteerRequestForm({ className }: Props) {
       description: "",
       organizerName: "",
       tags: [],
-      thumbnail: "",
+      thumbnail: undefined,
       workload: [],
       form: [],
       latitude: undefined,
@@ -79,25 +81,12 @@ export function VolunteerRequestForm({ className }: Props) {
   });
 
   function onSubmit(values: VolunteerFormRequestSchema) {
-    createVolunteerRequest.mutate(values);
+    createOpportunity.mutate(values);
   }
 
-  const handleDeleteImage = async (
-    imageUrl: string,
-    onChange: (value: string) => void,
-  ) => {
+  const handleDeleteImage = async (onChange: (value: string) => void) => {
     setIsDeleting(true);
     try {
-      // Extract the file key from the URL for UploadThing deletion
-      const fileKey = imageUrl.split("/").pop();
-      if (fileKey) {
-        // Note: You'll need to implement server-side deletion endpoint
-        // await fetch(`/api/uploadthing/delete`, {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify({ fileKey })
-        // });
-      }
       onChange("");
       // showToast({ title: "Obraz został usunięty" });
     } catch {
@@ -183,9 +172,11 @@ export function VolunteerRequestForm({ className }: Props) {
                         variant="destructive"
                         size="sm"
                         className="absolute top-2 right-2"
-                        onClick={() =>
-                          handleDeleteImage(field.value, field.onChange)
-                        }
+                        onClick={() => {
+                          if (field.value) {
+                            void handleDeleteImage(field.onChange);
+                          }
+                        }}
                         disabled={isDeleting}
                       >
                         {isDeleting ? (
@@ -384,9 +375,9 @@ export function VolunteerRequestForm({ className }: Props) {
         <div className="flex justify-end">
           <Button
             type="submit"
-            disabled={isUploading || createVolunteerRequest.isPending}
+            disabled={isUploading || createOpportunity.isPending}
           >
-            {createVolunteerRequest.isPending ? (
+            {createOpportunity.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Tworzenie...

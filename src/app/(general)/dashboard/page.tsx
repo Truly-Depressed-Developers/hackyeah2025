@@ -10,7 +10,7 @@ export default function DashboardPage() {
     data: applications,
     isLoading,
     error,
-  } = api.applications.getForCompany.useQuery();
+  } = api.applications.getForCompany.useQuery({});
 
   if (isLoading) {
     return <Loading />;

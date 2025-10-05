@@ -5,7 +5,7 @@ export const volunteerRequestSchema = z.object({
   description: z.string().min(10, "Opis jest wymagany"),
   organizerName: z.string().min(2, "Nazwa organizatora jest wymagana"),
   tags: z.array(z.string()),
-  thumbnail: z.string(),
+  thumbnail: z.string().optional(),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
   startDate: z.date().optional(),

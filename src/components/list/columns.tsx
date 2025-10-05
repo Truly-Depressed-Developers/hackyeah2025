@@ -10,14 +10,19 @@ import { api } from "@/trpc/react";
 export type ApplicationInfo = {
   id: number;
   volunteerId: number;
-  eventId: number;
+  eventId: number | null;
+  externalEventId: string;
+  eventTitle: string | null;
+  companyName: string | null;
   message: string | null;
   status: "pending" | "accepted" | "rejected";
   createdAt: Date;
   volunteerName: string | null;
   volunteerEmail: string | null;
-  eventName: string;
+  // From JOIN with events table
+  eventName: string | null;
   eventDate: Date | null;
+  eventSyncStatus: "pending" | "synced" | "error" | null;
 };
 
 export const columns: ColumnDef<ApplicationInfo>[] = [
@@ -36,8 +41,31 @@ export const columns: ColumnDef<ApplicationInfo>[] = [
     ),
   },
   {
-    accessorKey: "eventName",
+    accessorKey: "eventName", // Add eventName as accessor
+    id: "event",
     header: "Wydarzenie",
+    cell: ({ row }) => {
+      const localEventName = row.getValue("eventName");
+      const storedTitle = row.original.eventTitle;
+      const syncStatus = row.original.eventSyncStatus;
+
+      const eventName =
+        (typeof localEventName === "string" ? localEventName : null) ??
+        storedTitle ??
+        "Nieznane wydarzenie";
+
+      return (
+        <div className="flex flex-col">
+          <span>{eventName}</span>
+          {syncStatus === "pending" && (
+            <span className="text-xs text-orange-600">⏳ Oczekuje synch.</span>
+          )}
+          {syncStatus === "error" && (
+            <span className="text-xs text-red-600">❌ Błąd synch.</span>
+          )}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "status",
